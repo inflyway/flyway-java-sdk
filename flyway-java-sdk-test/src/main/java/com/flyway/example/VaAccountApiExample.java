@@ -2,16 +2,16 @@ package com.flyway.example;
 
 
 import com.flyway.account.OpenVaAccountApi;
+import com.flyway.account.model.VaAccountInfoDto;
 import com.flyway.account.model.VaAccountOpenRequest;
-import com.flyway.account.model.VaAccountOpenResponse;
 import com.flyway.account.model.VaAccountQueryRequest;
-import com.flyway.account.model.VaAccountQueryResponse;
 import com.flyway.common.FlywayConfig;
 import com.flyway.common.TokenApi;
+import com.flyway.common.model.CommonResponse;
 import com.flyway.exception.FlywayApiException;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
+import java.util.Collections;
 
 /**
  * Inflyway API调用示例
@@ -29,14 +29,14 @@ import java.util.Arrays;
 public class VaAccountApiExample {
 
     public static void main(String[] args) {
-        example();
-//        queryExample();
+        openVaAccountExample();
+//        queryVaAccountResultExample();
     }
 
     /**
-     * 示例
+     * va开户申请示例
      */
-    public static void example() {
+    public static void openVaAccountExample() {
         try {
             System.out.println(">> 直接在代码中配置认证信息（带加密和签名）：");
 
@@ -55,7 +55,7 @@ public class VaAccountApiExample {
             flywayConfig.setDebug(true);
 
 
-            // 3： 获取token（有效期2小时）
+            // 3： 获取token（有效期2小时）,获取token 后建议缓存，不要频繁调用
             TokenApi tokenApi = new TokenApi(flywayConfig);
             String token = tokenApi.getToken();
 
@@ -64,31 +64,25 @@ public class VaAccountApiExample {
             
             VaAccountOpenRequest request = new VaAccountOpenRequest();
             request.setRequestNo("20251127000001");
-            request.setOpenID("223344556677");
-            request.setBankCardNo("10000000000006");
-            request.setBankAccountName("Visionceler Limited");
+            request.setOpenID("");
+            request.setBankCardNo("10000000000003");
             request.setNoticeUrl("https://crooked-babushka.info/");
-            
+
+            //bankCardNo in (10000000000016,10000000000017,10000000000018,10000000000011，10000000000012,10000000000014)
             VaAccountOpenRequest.SupplementInformation supplementInfo = new VaAccountOpenRequest.SupplementInformation();
-            supplementInfo.setMainBusinessType(Arrays.asList(
-                "ggqk1z_tt6@qq.com",
-                "pybsbt_od078@qq.com",
-                "k7nggq.sld7@qq.com"
+            supplementInfo.setMainSalesRegion(Collections.singletonList(
+                    "CHN"
             ));
-            supplementInfo.setMainSalesRegion(Arrays.asList(
-                "v9blnf.mtl@qq.com",
-                "jzzgm3_sp2@qq.com",
-                "m8eiuk21@qq.com"
-            ));
-            supplementInfo.setIndustry("aliqua minim magna irure");
-            supplementInfo.setMajorSalesRegion("consectetur magna non tempor");
-            supplementInfo.setAnnualRemittanceAmount(new BigDecimal("583.09"));
-            supplementInfo.setAverageRemittanceAmount(new BigDecimal("840.83"));
+
+            //bankCardNo in (10000000000011，10000000000012,10000000000014)
+            supplementInfo.setIndustry("OVERSEASSHOP");
+            supplementInfo.setAnnualRemittanceAmount(new BigDecimal("50000.09"));
+            supplementInfo.setAverageRemittanceAmount(new BigDecimal("100.83"));
             
-//            request.setSupplementInformation(supplementInfo);
+            request.setSupplementInformation(supplementInfo);
             request.setToken(token);
-            
-            VaAccountOpenResponse response = vaAccountApi.openAccount(request);
+
+            CommonResponse<?> response = vaAccountApi.openAccount(request);
 
             // 5： 输出返回结果
             System.out.println("开户返回结果: " + response);
@@ -100,9 +94,9 @@ public class VaAccountApiExample {
     }
     
     /**
-     * 查询示例
+     * 查询va开户结果示例
      */
-    public static void queryExample() {
+    public static void queryVaAccountResultExample() {
         try {
             System.out.println(">> 查询VA开户结果：");
 
@@ -130,11 +124,11 @@ public class VaAccountApiExample {
             
             VaAccountQueryRequest request = new VaAccountQueryRequest();
             request.setRequestNo("20251127000001");
-            request.setBankCardNo("10000000000006");
-            request.setOpenID("223344556677");
+            request.setBankCardNo("10000000000003");
+            request.setOpenID("");
             request.setToken(token);
-            
-            VaAccountQueryResponse response = vaAccountApi.queryAccount(request);
+
+            CommonResponse<VaAccountInfoDto> response = vaAccountApi.queryAccount(request);
 
             // 5： 输出返回结果
             System.out.println("查询返回结果: " + response);

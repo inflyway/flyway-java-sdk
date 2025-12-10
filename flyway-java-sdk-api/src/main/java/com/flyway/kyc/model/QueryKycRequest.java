@@ -14,8 +14,8 @@ public class QueryKycRequest extends CommonRequest {
     /**
      * 开放平台账户ID
      */
-    @JsonProperty("requsestNo")
-     private String requsestNo;;
+    @JsonProperty("requestNo")
+     private String requestNo;;
     
     public QueryKycRequest() {
     }

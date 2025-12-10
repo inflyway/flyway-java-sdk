@@ -2,6 +2,7 @@ package com.flyway.kyc.model;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.List;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,7 +17,10 @@ public class CompanyDirector implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
+//	 ("认证类型")
+	private Integer kycType;
+//	 ("人脸照片")
+	private List<String> facePhoto;
 	//("姓名")
 	private String directorName;
 
@@ -25,11 +29,7 @@ public class CompanyDirector implements Serializable {
 
 	//("证件号")
 	private String directorIdNo;
-	/**
-	 * 活体检测照片
-	 */
-
-	private String vivoImgUrl;
+	
 
 	//("签发机关")
 	private String grantingOffice;
@@ -44,10 +44,10 @@ public class CompanyDirector implements Serializable {
 	private String address;
 
 	//("证件开始日期")
-	private LocalDate idStartDate;
+	private String idStartDate;
 
 	//("证件结束日期")
-	private LocalDate idEndDate;
+	private String idEndDate;
 
 	//("国家地区")
 	private String country;
@@ -67,7 +67,7 @@ public class CompanyDirector implements Serializable {
 	private String directorNameEn;
 
 	//(value = "出生日期")
-	private LocalDate birthday;
+	private String birthday;
 
 	//("法人联系方式")
 	private String legalMobile;

@@ -129,20 +129,4 @@ public class OpenAesUtil {
             throw new RuntimeException("解密失败");
         }
     }
-
-    /**
-     * 生成aes密钥
-     */
-    public static String createSecret(int length) {
-        if (length <= 0) {
-            throw new RuntimeException("密钥长度必须大于0");
-        }
-        String s = "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-        Random r = new Random();
-        StringBuilder sb = new StringBuilder();
-        while (sb.length() < length) {
-            sb.append(s.charAt(r.nextInt(62)));
-        }
-        return sb.toString();
-    }
 }

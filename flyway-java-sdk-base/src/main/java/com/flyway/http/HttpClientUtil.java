@@ -1,6 +1,9 @@
 package com.flyway.http;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flyway.common.FlywayConfig;
 import com.flyway.common.model.CipherResponse;
 import com.flyway.common.model.CommonResponse;
@@ -55,7 +58,6 @@ public class HttpClientUtil {
                 .build();
     }
 
-
     /**
      * 发送POST JSON请求（带加密和签名）
      */
@@ -106,7 +108,6 @@ public class HttpClientUtil {
                 // AES加密请求体
                 String encryptedContent = OpenAesUtil.encryptAndBase64Encode(jsonContent, aesKey);
 
-
                 Map<String, String> realBody = new HashMap<>();
                 realBody.put("ciphertext", encryptedContent);
                 String realJson = objectMapper.writeValueAsString(realBody);
@@ -135,7 +136,6 @@ public class HttpClientUtil {
             }
         }
     }
-
 
     /**
      * 发送POST表单URL编码请求（用于OAuth2 token请求）
@@ -211,12 +211,20 @@ public class HttpClientUtil {
             CipherResponse cipherResponse = objectMapper.readValue(responseContent, CipherResponse.class);
             String jsonData = OpenAesUtil.decryptAfterBase64Decode(cipherResponse.getData().getCiphertext(), config.getAesKey());
             if (StringUtils.isNotBlank(jsonData) && !"null".equals(jsonData)) {
-                T t = objectMapper.readValue(jsonData, responseType);
-                if (t instanceof CommonResponse) {
-                    CommonResponse commonResponse = (CommonResponse) t;
-                    commonResponse.setCode(cipherResponse.getCode());
-                    commonResponse.setMessage(cipherResponse.getMessage());
-                }
+                // 构建完整的响应JSON对象
+                ObjectNode fullResponseNode = objectMapper.createObjectNode();
+                fullResponseNode.put("code", cipherResponse.getCode());
+                fullResponseNode.put("message", cipherResponse.getMessage());
+
+                // 将解密后的data内容添加到响应JSON中
+                JsonNode dataNode = objectMapper.readTree(jsonData);
+                fullResponseNode.set("data", dataNode);
+
+                // 直接反序列化整个响应对象，让Jackson处理所有字段映射和类型转换
+                // 使用Reader配置忽略未知属性，提供更好的兼容性
+                T t = objectMapper.readerFor(responseType)
+                        .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                        .readValue(fullResponseNode.toString());
                 return t;
             }
             // 异常场景：解密后数据为空或null，返回对象但忽略data
@@ -255,4 +263,3 @@ public class HttpClientUtil {
         }
     }
 }
-

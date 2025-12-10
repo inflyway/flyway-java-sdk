@@ -15,7 +15,11 @@ import lombok.EqualsAndHashCode;
 public class CompanyBeneficiary implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-
+	 
+//	 ("认证类型")
+	private Integer kycType;
+//	 ("人脸照片")
+	private List<String> facePhoto;
 	//("姓名")
 	private String beneficiaryName;
 
@@ -58,10 +62,10 @@ public class CompanyBeneficiary implements Serializable {
 	private String enAddress;
 
 	//("证件开始日期")
-	private LocalDate idStartDate;
+	private String idStartDate;
 
 	//("证件结束日期")
-	private LocalDate idEndDate;
+	private String idEndDate;
 
 	//("国家地区")
 	private String country;
@@ -81,7 +85,7 @@ public class CompanyBeneficiary implements Serializable {
 	private String beneficiaryStatement;
 
 	//(value = "出生日期")
-	private LocalDate birthday;
+	private String birthday;
 
 	//("手持照片")
 	private String handheldPhoto;

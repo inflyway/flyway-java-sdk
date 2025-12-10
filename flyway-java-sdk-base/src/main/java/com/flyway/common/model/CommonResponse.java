@@ -6,8 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * 查询FLH余额响应结果
  */
-public class CommonResponse {
-
+public class CommonResponse<T> {
 
     /**
      * 响应代码
@@ -20,6 +19,12 @@ public class CommonResponse {
      */
     @JsonProperty("message")
     private String message;
+
+    /**
+     * 响应数据
+     */
+    @JsonProperty("data")
+    private T data;
 
     public CommonResponse() {
     }
@@ -40,6 +45,20 @@ public class CommonResponse {
         this.message = message;
     }
 
+    public T getData() {
+        return data;
+    }
 
+    public void setData(T data) {
+        this.data = data;
+    }
 
+    @Override
+    public String toString() {
+        return "CommonResponse{" +
+                "code=" + code +
+                ", message='" + message + '\'' +
+                ", data=" + data +
+                '}';
+    }
 }

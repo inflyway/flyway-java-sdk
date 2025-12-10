@@ -40,7 +40,7 @@ public class KycRequest extends CommonRequest {
 	private String idType;
 
 	// ("注册日期")
-	private LocalDate registerAt;
+	private String registerAt;
 
 	// ("企业主体类型")
 	private Integer subjectType;

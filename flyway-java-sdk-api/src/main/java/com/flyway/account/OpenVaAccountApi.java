@@ -1,11 +1,11 @@
 package com.flyway.account;
 
+import com.flyway.account.model.VaAccountInfoDto;
 import com.flyway.account.model.VaAccountOpenRequest;
-import com.flyway.account.model.VaAccountOpenResponse;
 import com.flyway.account.model.VaAccountQueryRequest;
-import com.flyway.account.model.VaAccountQueryResponse;
 import com.flyway.common.FlywayConfig;
 import com.flyway.common.FlywayUrlConstants;
+import com.flyway.common.model.CommonResponse;
 import com.flyway.exception.FlywayApiException;
 import com.flyway.http.AbstractApi;
 import com.flyway.http.HttpClientUtil;
@@ -36,8 +36,8 @@ public class OpenVaAccountApi extends AbstractApi {
      * @return 开户结果
      * @throws FlywayApiException API调用异常
      */
-    public VaAccountOpenResponse openAccount(VaAccountOpenRequest request) throws FlywayApiException {
-        return execute(request, this.vaAccountOpenPath, VaAccountOpenResponse.class);
+    public CommonResponse openAccount(VaAccountOpenRequest request) throws FlywayApiException {
+        return execute(request, this.vaAccountOpenPath, CommonResponse.class);
     }
 
     /**
@@ -47,7 +47,7 @@ public class OpenVaAccountApi extends AbstractApi {
      * @return 查询结果
      * @throws FlywayApiException API调用异常
      */
-    public VaAccountQueryResponse queryAccount(VaAccountQueryRequest request) throws FlywayApiException {
-        return execute(request, this.vaAccountQueryPath, VaAccountQueryResponse.class);
+    public CommonResponse<VaAccountInfoDto> queryAccount(VaAccountQueryRequest request) throws FlywayApiException {
+        return execute(request, this.vaAccountQueryPath, CommonResponse.class);
     }
 }

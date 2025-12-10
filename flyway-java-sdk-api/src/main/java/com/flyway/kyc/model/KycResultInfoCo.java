@@ -34,7 +34,7 @@ public class KycResultInfoCo  {
     /**
      * 请求号
      */
-    private String requsestNo;
+    private String requestNo;
 
     
 }

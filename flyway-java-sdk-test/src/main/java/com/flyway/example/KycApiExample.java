@@ -1,12 +1,19 @@
 package com.flyway.example;
 
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.alibaba.fastjson.JSON;
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import com.flyway.common.FlywayConfig;
 import com.flyway.common.TokenApi;
 import com.flyway.exception.FlywayApiException;
 import com.flyway.kyc.OpenKYCApi;
+import com.flyway.kyc.model.CompanyBeneficiary;
+import com.flyway.kyc.model.CompanyDirector;
 import com.flyway.kyc.model.KycRequest;
 import com.flyway.kyc.model.KycResponse;
 import com.flyway.kyc.model.QueryKycRequest;
@@ -29,104 +36,9 @@ public class KycApiExample {
 
 	 public static void main(String[] args) {
 	        try {
-	            // 1. 配置 Flyway SDK
-	            FlywayConfig config = new FlywayConfig();
-	            config.setServerUrl("https://open-test.inflyway.com"); // 测试环境地址
-	            config.setClientId("c2X0Are0xNvbjDjC");           // 替换为实际的 client_id
-	            config.setClientSecret("ycE92NevW6J0cQThLNsb");   // 替换为实际的 client_secret
-	            config.setAesKey("914y7EaGyJwlC27M");             // 替换为16位 AES 密钥
-	            config.setRsaPrivateKey("MIICeAIBADANBgkqhkiG9w0BAQEFAASCAmIwggJeAgEAAoGBAI7vV39viNlmD1dX/9NhzePIJFcbzeMFyrZSt0xwMUYyjhiFJPnoGIVyG0pssXiMbzA8FBZuiKMeiZjc8SjrWAMg2gHDjIWzhUuo3puMqZR21nC+2KA/b8j0HsQ9PTDbHdcKyHYIYNAbp/SRRPIZOvVqt4+Z4COrfv4JccosIWkxAgMBAAECgYEAiUVbJswbBY561UtyKbQYY9Xm8LGHPaxmTkuKNiLZb61Fwk68gDVit2Yqx4Mzva5BanWIZTKqjt3ZD7HA+adr0cWDQiwzBnmZys33uN6jm8kLtU1KFLblIIx10X1mppcZPQRDRbBy7tVCOoa/dEzynH0Rt1djgZszDBJhIA3MaAECQQDIHHjuRq4peWz4KaSp16Pg4ONWD2GTi74FLXwflC5JSljN6axbzON1aqD0CAv29KtcwvBR55+MOT+vvcuSLMlRAkEAttriygaXd7F9ylIuUp8zpVX8+zKQro0uq8Gar8JoHdNYoghZLAOVrAses7KtbuRTMwIoHn0CtC8l8tOQTH6p4QJBAIP34vigvDK11VtDe0hW4choBwS2WA9J1SLtADKDMpM66J3DQNu5nzfL/iFxPRK8AFbIaFxbeCitiIaJkDryNkECQQCnc2ucdsze37vCO+AP6ZryHfy+TWAReVj0ESgHLJEMPy87s0l19RJrqwNCrK4GjzFh1OfIg9KmD0dBSF0ssBIBAkBhG+N0rbS6CyCjaOa5DncsLgcppAaOKr6L9lyruwvtBaT1CiJY4w/z6zxJ/Qy+Nx8ObVbL3t94DondW+8c5IWl");       // 替换为 RSA 私钥
-	            config.setDebug(true);
-
-	            // 2. 获取访问令牌
-	            TokenApi tokenApi = new TokenApi(config);
-	            String token = tokenApi.getToken();
-	            System.out.println("获取到的访问令牌: " + token);
-
-	            // 3. 初始化 KYC API
-	            OpenKYCApi kycApi = new OpenKYCApi(config);
-
-	            
-	            String ss="{\r\n" + 
-	            		"    \"requestNo\": \"123430\",\r\n" + 
-	            		"    \"applicantPhone\": \"13922417235\",\r\n" + 
-	            		"    \"applicantEmail\": \"139@XXXXXXXX.COM\",\r\n" + 
-	            		"    \"mainSalesRegion\": {\r\n" + 
-	            		"        \"405\": \"其他\"\r\n" + 
-	            		"    },\r\n" + 
-	            		"    \"mainProductClass\": {\r\n" + 
-	            		"        \"320\": \"其他\"\r\n" + 
-	            		"    },\r\n" + 
-	            		"    \"businessLicense\": \"1689058088715_9b00c48f345a3b13af60ce1322fa94df.pdf\",\r\n" + 
-	            		"    \"companyEnName\": \"22GEDHEALTHINOW PTE. LTD.\",\r\n" + 
-	            		"    \"companyName\": \"22GEDHEALTHINOW PTE. LTD.\",\r\n" + 
-	            		"    \"businessEnAddress\": \"315 OUTRAM ROAD #15-08 TAN BOON LIAT BUILDING SINGAPORE (169074)\",\r\n" + 
-	            		"    \"registerAt\": 1683302400000,\r\n" + 
-	            		"    \"companyCode\": \"302317548D\",\r\n" + 
-	            		"    \"idType\": \"1\",\r\n" + 
-	            		"    \"businessAddress\": \"DDDDDD\",\r\n" + 
-	            		"    \"country\": \"CHN\",\r\n" + 
-	            		"    \"subjectType\": \"1\",\r\n" + 
-	            		"    \"noticeUrl\": \"WWWW\",\r\n" + 
-	            		"    \"companyDirectorDos\": [\r\n" + 
-	            		"        {\r\n" + 
-	            		"            \"directorIdNo\": \"A57249601\",\r\n" + 
-	            		"            \"directorName\": \"张锦泰\",\r\n" + 
-	            		"            \"directorNameEn\": \"Zhang Jing Tai\",\r\n" + 
-	            		"            \"gender\": 1,\r\n" + 
-	            		"            \"nation\": \"汉\",\r\n" + 
-	            		"            \"address\": \"北京市朝阳区六里屯丽水家园6号楼1009\",\r\n" + 
-	            		"            \"birthday\": \"1979-12-19\",\r\n" + 
-	            		"            \"grantingOffice\": \"UTC PERAK\",\r\n" + 
-	            		"            \"nameEn\": \"CHONG KAM THAI\",\r\n" + 
-	            		"            \"enAddress\": \"Building 6, Lishui Jiayuan, Liulitun, Chaoyang District, Beijing 1009\",\r\n" + 
-	            		"            \"idStartDate\": \"2022-10-08\",\r\n" + 
-	            		"            \"idEndDate\": \"2028-04-08\",\r\n" + 
-	            		"            \"handheldPhoto\": \"/common/1680861599593_default.jpg\",\r\n" + 
-	            		"            \"directorIdType\": 1,\r\n" + 
-	            		"            \"directorIdBack\": \"ocr/1689057754288_8a85c78d0f2c9511732b351823f155ae.jpg\",\r\n" + 
-	            		"            \"directorIdFront\": \"ocr/1689057826489_1477efe2d4efc8e134c11bace81e8ac7.jpg\",\r\n" + 
-	            		"            \"legalMobile\": \"String\"\r\n" + 
-	            		"        }\r\n" + 
-	            		"    ],\r\n" + 
-	            		"    \"companyBeneficiaryDos\": [\r\n" + 
-	            		"        {\r\n" + 
-	            		"            \"gender\": 1,\r\n" + 
-	            		"            \"nation\": \"汉\",\r\n" + 
-	            		"            \"address\": \"北京市朝阳区六里屯丽水家园6号楼1009\",\r\n" + 
-	            		"            \"birthday\": \"1979-12-19\",\r\n" + 
-	            		"            \"frontImageKey\": \"ocr/1684137322185_dfac77e1af95ebee24348546b98c6c94.jpg\",\r\n" + 
-	            		"            \"grantingOffice\": \"UTC PERAK\",\r\n" + 
-	            		"            \"enAddress\": \"Building 6, Lishui Jiayuan, Liulitun, Chaoyang District, Beijing 1009\",\r\n" + 
-	            		"            \"idStartDate\": \"2022-10-08\",\r\n" + 
-	            		"            \"idEndDate\": \"2028-04-08\",\r\n" + 
-	            		"            \"beneficiaryIdBack\": \"ocr/1689057754288_8a85c78d0f2c9511732b351823f155ae.jpg\",\r\n" + 
-	            		"            \"beneficiaryIdFront\": \"ocr/1689057826489_1477efe2d4efc8e134c11bace81e8ac7.jpg\",\r\n" + 
-	            		"            \"beneficiaryIdType\": 1,\r\n" + 
-	            		"            \"beneficiaryName\": \"张锦泰\",\r\n" + 
-	            		"            \"beneficiaryNameEn\": \"CHONG KAM THAI\",\r\n" + 
-	            		"            \"beneficiaryIdNo\": \"A57249601\",\r\n" + 
-	            		"            \"ratio\": \"100\"\r\n" + 
-	            		"        }\r\n" + 
-	            		"    ]\r\n" + 
-	            		"}";
-	            // 添加其他必需的参数...
-	         // 4. 执行企业 KYC 认证
-	            KycRequest kycRequest = JSON.parseObject(ss,KycRequest.class);
-	            // 设置必要的请求参数
-	            kycRequest.setToken(token);
-	            KycResponse kycResponse = kycApi.enterprise(kycRequest);
-	            System.out.println("KYC 认证响应: " + kycResponse);
-
-	            // 5. 查询 KYC 结果
-	            QueryKycRequest queryRequest = new QueryKycRequest();
-	            // 设置查询条件
-	            queryRequest.setToken(token);
-	            // 添加查询参数...
-	            queryRequest.setRequsestNo("123430");
-	            QueryKycResponse queryResponse = kycApi.queryKyc(queryRequest);
-	            System.out.println("KYC 查询响应: " + queryResponse);
-
+	           Kyc();
+                //查询结果
+	            queryKyc();
 	        } catch (FlywayApiException e) {
 	            System.err.println("API 调用失败: " + e.getMessage());
 	            e.printStackTrace();
@@ -134,5 +46,282 @@ public class KycApiExample {
 	            System.err.println("测试执行失败: " + e.getMessage());
 	            e.printStackTrace();
 	        }
-	    } 
+	    }
+
+	 private static void Kyc() throws FlywayApiException {
+
+		 // 1. 配置 Flyway SDK
+         FlywayConfig config = new FlywayConfig();
+         config.setServerUrl("https://open-test.inflyway.com"); // 测试环境地址
+         config.setClientId("");           // 替换为实际的 client_id
+         config.setClientSecret("");   // 替换为实际的 client_secret
+         config.setAesKey("");             // 替换为16位 AES 密钥
+         config.setRsaPrivateKey("");       // 替换为 RSA 私钥
+         config.setDebug(true);
+
+         // 2. 获取访问令牌
+         TokenApi tokenApi = new TokenApi(config);
+         String token = tokenApi.getToken();
+         System.out.println("获取到的访问令牌: " + token);
+
+         // 3. 初始化 KYC API
+         OpenKYCApi kycApi = new OpenKYCApi(config);
+
+
+         //香港的
+//         KycRequest hkkycRequest = initHkKycRequest();
+//         testKycSdk(token, kycApi, hkkycRequest);
+         //大陆的
+         KycRequest chinakycRequest = initChinaKycRequest();
+         testKycSdk(token, kycApi, chinakycRequest);
+		}
+	 private static void queryKyc( ) throws FlywayApiException {
+			 
+		 // 1. 配置 Flyway SDK
+         FlywayConfig config = new FlywayConfig();
+         config.setServerUrl("https://open-test.inflyway.com"); // 测试环境地址
+         config.setClientId("");           // 替换为实际的 client_id
+         config.setClientSecret("");   // 替换为实际的 client_secret
+         config.setAesKey("");             // 替换为16位 AES 密钥
+         config.setRsaPrivateKey("");       // 替换为 RSA 私钥
+         config.setDebug(true);
+
+         // 2. 获取访问令牌
+         TokenApi tokenApi = new TokenApi(config);
+         String token = tokenApi.getToken();
+         System.out.println("获取到的访问令牌: " + token);
+         // 3. 初始化 KYC API
+         OpenKYCApi kycApi = new OpenKYCApi(config);
+			// 5. 查询 KYC 结果
+			QueryKycRequest queryRequest = new QueryKycRequest();
+			// 设置查询条件
+			queryRequest.setToken(token);
+			// 添加查询参数...
+			queryRequest.setRequestNo("1122322230");
+			QueryKycResponse queryResponse = kycApi.queryKyc(queryRequest);
+			System.out.println("KYC 查询响应: " +JSON.toJSONString(queryResponse) );
+		} 
+	private static void testKycSdk(String token, OpenKYCApi kycApi, KycRequest kycRequest) throws FlywayApiException {
+		// 设置必要的请求参数
+		kycRequest.setToken(token);
+		KycResponse kycResponse = kycApi.enterprise(kycRequest);
+		System.out.println("KYC 认证响应: " + JSON.toJSONString(kycResponse));
+
+//		// 5. 查询 KYC 结果
+//		QueryKycRequest queryRequest = new QueryKycRequest();
+//		// 设置查询条件
+//		queryRequest.setToken(token);
+//		// 添加查询参数...
+//		queryRequest.setRequestNo(kycRequest.getRequestNo());
+//		QueryKycResponse queryResponse = kycApi.queryKyc(queryRequest);
+//		System.out.println("KYC 查询响应: " +JSON.toJSONString(queryResponse) );
+	}
+	 private static KycRequest initChinaKycRequest() {
+		    KycRequest kycRequest = new KycRequest();
+
+		    // 设置基本信息
+		    kycRequest.setRequestNo("1122322230");
+		    kycRequest.setApplicantPhone("13613517235");
+		    kycRequest.setApplicantEmail("139@XXXXXXXX.COM");
+		    kycRequest.setCompanyCode("91330782MADAJ85G89");
+		    kycRequest.setIdType("1");
+		    kycRequest.setBusinessLicense("company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG");
+		    kycRequest.setCompanyEnName("22GEDHEALTHINOW PTE. LTD.");
+		    kycRequest.setCompanyName("义乌市基智饰品有限公司");
+		    kycRequest.setSubjectType(1);
+		    kycRequest.setRegisterAt("2022-10-08");
+		    kycRequest.setCountry("CHN");
+		    kycRequest.setBusinessAddress("DDDDDD");
+		    kycRequest.setBusinessEnAddress("315 OUTRAM ROAD #15-08 TAN BOON LIAT BUILDING SINGAPORE (169074)");
+		    kycRequest.setNoticeUrl("WWWW");
+
+		    // 设置销售区域和产品类别
+		    Map<String, String> salesRegion = new HashMap<>();
+		    salesRegion.put("405", "其他");
+		    kycRequest.setMainSalesRegion(salesRegion);
+
+		    Map<String, String> productClass = new HashMap<>();
+		    productClass.put("320", "其他产品");
+		    kycRequest.setMainProductClass(productClass);
+
+		    // 设置董事信息
+		    List<CompanyDirector> directorList = new ArrayList<>();
+		    CompanyDirector director = new CompanyDirector();
+		    director.setKycType(2);
+		    director.setDirectorIdNo("441781200311303814");
+		    director.setDirectorName("覃国庆");
+		    director.setDirectorNameEn("Zhang Jing Tai");
+		    director.setGender(1);
+		    director.setCountry("CHN");
+		    director.setNation("汉");
+		    director.setAddress("北京市朝阳区六里屯丽水家园6号楼1009");
+		    director.setBirthday("1979-12-19");
+		    director.setGrantingOffice("UTC PERAK"); 
+		    director.setEnAddress("Building 6, Lishui Jiayuan, Liulitun, Chaoyang District, Beijing 1009");
+		    director.setIdStartDate("2022-10-08");
+		    director.setIdEndDate("2028-04-08");
+		    director.setHandheldPhoto("company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG");
+		    director.setDirectorIdType("1");
+		    director.setDirectorIdBack("company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG");
+		    director.setDirectorIdFront("company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG");
+		    director.setLegalMobile("13922817525");
+
+		    List<String> facePhotos = Arrays.asList(
+		        "company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG",
+		        "company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG",
+		        "company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG",
+		        "company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG",
+		        "company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG",
+		        "company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG"
+		    );
+		    director.setFacePhoto(facePhotos);
+
+		    directorList.add(director);
+		    kycRequest.setCompanyDirectorDos(directorList);
+
+		    // 设置受益人信息
+		    List<CompanyBeneficiary> beneficiaryList = new ArrayList<>();
+		    
+		    // 第一个受益人
+		    CompanyBeneficiary beneficiary1 = new CompanyBeneficiary();
+		    beneficiary1.setKycType(4);
+		    beneficiary1.setGender(1);
+		    beneficiary1.setNation("汉");
+		    beneficiary1.setAddress("北京市朝阳区六里屯丽水家园6号楼1009");
+		    beneficiary1.setBirthday("1979-12-19");
+		    beneficiary1.setCountry("CHN");
+		    
+		    beneficiary1.setGrantingOffice("UTC PERAK");
+		    beneficiary1.setEnAddress("Building 6, Lishui Jiayuan, Liulitun, Chaoyang District, Beijing 1009");
+		    beneficiary1.setIdStartDate("2022-10-08");
+		    beneficiary1.setIdEndDate("2028-04-08");
+		    beneficiary1.setBeneficiaryIdBack("company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG");
+		    beneficiary1.setBeneficiaryIdFront("company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG");
+		    beneficiary1.setBeneficiaryIdType("1");
+		    beneficiary1.setBeneficiaryName("覃国庆");
+		    beneficiary1.setBeneficiaryNameEn("CHONG KAM THAI");
+		    beneficiary1.setBeneficiaryIdNo("441781200311303814");
+		    beneficiary1.setRatio("50");
+
+		    // 第二个受益人
+		    CompanyBeneficiary beneficiary2 = new CompanyBeneficiary();
+		    beneficiary2.setKycType(4);
+		    beneficiary2.setGender(1);
+		    beneficiary2.setNation("汉");
+		    beneficiary2.setAddress("北京市朝阳区六里屯丽水家园6号楼1009");
+		    beneficiary2.setBirthday("1979-12-19");
+		    beneficiary2.setCountry("CHN");
+		   
+		    beneficiary2.setGrantingOffice("UTC PERAK");
+		    beneficiary2.setEnAddress("Building 6, Lishui Jiayuan, Liulitun, Chaoyang District, Beijing 1009");
+		    beneficiary2.setIdStartDate("2022-10-08");
+		    beneficiary2.setIdEndDate("2028-04-08");
+		    beneficiary2.setBeneficiaryIdBack("company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG");
+		    beneficiary2.setBeneficiaryIdFront("company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG");
+		    beneficiary2.setBeneficiaryIdType("1");
+		    beneficiary2.setBeneficiaryName("覃国庆1");
+		    beneficiary2.setBeneficiaryNameEn("CHONG KAM THAI");
+		    beneficiary2.setBeneficiaryIdNo("441781200311303815");
+		    beneficiary2.setRatio("50");
+
+		    beneficiaryList.add(beneficiary1);
+		    beneficiaryList.add(beneficiary2);
+		    kycRequest.setCompanyBeneficiaryDos(beneficiaryList);
+
+		    return kycRequest;
+		}
+
+	private static KycRequest initHkKycRequest() {
+ 
+		KycRequest kycRequest = new KycRequest();
+
+		// 设置基本信息
+		kycRequest.setRequestNo("15534122");
+		kycRequest.setApplicantPhone("13821410214");
+		kycRequest.setApplicantEmail("139@XXXXXXXX.COM");
+		kycRequest.setCompanyCode("2919469");
+		kycRequest.setIdType("2");
+		kycRequest.setBusinessLicense("company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG");
+		kycRequest.setCompanyEnName("XAD (HK) BUSINSS CO., LIMITED");
+		kycRequest.setCompanyName("鑫安達（香港）國際商務有限公司");
+		kycRequest.setSubjectType(3);
+		kycRequest.setRegisterAt("2022-10-08");
+		kycRequest.setCountry("HKG");
+		kycRequest.setBusinessAddress("DDDDDD");
+		kycRequest.setBusinessEnAddress("315 OUTRAMROAD #15-08 TAN BOON LIAT BUILDING SINGAPORE (169074)");
+		kycRequest.setAnnualAuditTable("company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG");
+		kycRequest.setBusinessRegiCert("company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG");
+		kycRequest.setBusinessRegistrationNumber("2919469");
+		kycRequest.setNoticeUrl("WWWW");
+
+		// 设置销售区域和产品类别
+		Map<String, String> salesRegion = new HashMap<>();
+		salesRegion.put("405", "其他");
+		kycRequest.setMainSalesRegion(salesRegion);
+
+		Map<String, String> productClass = new HashMap<>();
+		productClass.put("320", "其他产品");
+		kycRequest.setMainProductClass(productClass);
+
+		// 设置董事信息
+		List<CompanyDirector> directorList = new ArrayList<>();
+		CompanyDirector director = new CompanyDirector();
+		director.setKycType(1);
+		director.setDirectorIdNo("35030520030510341X");
+		director.setDirectorName("林志杰");
+		director.setDirectorNameEn("Zhang Jing Tai");
+		director.setGender(1);
+		director.setCountry("CHN");
+		director.setNation("汉");
+		director.setAddress("北京市朝阳区六里屯丽水家园6号楼1009");
+		director.setBirthday("1979-12-19");
+		director.setGrantingOffice("UTC PERAK"); 
+		director.setEnAddress("Building 6, Lishui Jiayuan, Liulitun, Chaoyang District, Beijing 1009");
+		director.setIdStartDate("2022-10-08");
+		director.setIdEndDate("2028-04-08");
+		director.setHandheldPhoto("company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG");
+		director.setDirectorIdType("1");
+		director.setDirectorIdBack("company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG");
+		director.setDirectorIdFront("company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG");
+		director.setLegalMobile("13922817525");
+
+		List<String> facePhotos = Arrays.asList(
+		    "company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG",
+		    "company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG",
+		    "company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG",
+		    "company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG",
+		    "company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG",
+		    "company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG"
+		);
+		director.setFacePhoto(facePhotos);
+
+		directorList.add(director);
+		kycRequest.setCompanyDirectorDos(directorList);
+
+		// 设置受益人信息
+		List<CompanyBeneficiary> beneficiaryList = new ArrayList<>();
+		CompanyBeneficiary beneficiary = new CompanyBeneficiary();
+		beneficiary.setKycType(1);
+		beneficiary.setGender(1);
+		beneficiary.setNation("汉");
+		beneficiary.setAddress("北京市朝阳区六里屯丽水家园6号楼1009");
+		beneficiary.setBirthday("1979-12-19");
+		beneficiary.setCountry("CHN");
+		
+		beneficiary.setGrantingOffice("UTC PERAK");
+		beneficiary.setEnAddress("Building 6, Lishui Jiayuan, Liulitun, Chaoyang District, Beijing 1009");
+		beneficiary.setIdStartDate("2022-10-08");
+		beneficiary.setIdEndDate("2028-04-08");
+		beneficiary.setBeneficiaryIdBack("company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG");
+		beneficiary.setBeneficiaryIdFront("company/file/local/1681962610202_26a2132dc504e5a4a79f61eb5e285570.JPG");
+		beneficiary.setBeneficiaryIdType("1");
+		beneficiary.setBeneficiaryName("林志杰");
+		beneficiary.setBeneficiaryNameEn("CHONG KAM THAI");
+		beneficiary.setBeneficiaryIdNo("35030520030510341X");
+		beneficiary.setRatio("100");
+
+		beneficiaryList.add(beneficiary);
+		kycRequest.setCompanyBeneficiaryDos(beneficiaryList);
+		return kycRequest;
+	} 
 }
