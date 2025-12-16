@@ -1,14 +1,17 @@
 package com.flyway.cfaccount;
 
+import com.flyway.cfaccount.model.CurrencyBalance;
 import com.flyway.cfaccount.model.QueryBalanceRequest;
-import com.flyway.cfaccount.model.QueryBalanceResponse;
 import com.flyway.common.FlywayConfig;
 import com.flyway.common.FlywayUrlConstants;
+import com.flyway.common.model.CommonResponse;
 import com.flyway.exception.FlywayApiException;
 import com.flyway.http.AbstractApi;
 import com.flyway.http.HttpClientUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  * Inflyway SDK客户端
@@ -37,7 +40,7 @@ public class OpenCfaccountApi extends AbstractApi {
      * @return 查询结果
      * @throws FlywayApiException API调用异常
      */
-    public QueryBalanceResponse queryBalance(QueryBalanceRequest request) throws FlywayApiException {
-        return execute(request, this.queryBalancePath, QueryBalanceResponse.class);
+    public CommonResponse<List<CurrencyBalance>> queryBalance(QueryBalanceRequest request) throws FlywayApiException {
+        return execute(request, this.queryBalancePath, CommonResponse.class);
     }
 }

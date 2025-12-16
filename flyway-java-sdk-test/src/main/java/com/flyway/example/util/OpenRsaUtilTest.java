@@ -1,4 +1,4 @@
-package com.flyway.example;
+package com.flyway.example.util;
 
 import com.flyway.util.OpenRsaUtil;
 

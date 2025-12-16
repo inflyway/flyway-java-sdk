@@ -1,12 +1,15 @@
-package com.flyway.example;
+package com.flyway.example.cfaccount;
 
 
 import com.flyway.cfaccount.OpenCfaccountApi;
+import com.flyway.cfaccount.model.CurrencyBalance;
 import com.flyway.cfaccount.model.QueryBalanceRequest;
-import com.flyway.cfaccount.model.QueryBalanceResponse;
 import com.flyway.common.FlywayConfig;
 import com.flyway.common.TokenApi;
+import com.flyway.common.model.CommonResponse;
 import com.flyway.exception.FlywayApiException;
+
+import java.util.List;
 
 /**
  * Inflyway API调用示例
@@ -34,11 +37,10 @@ public class CfaccountApiExample {
         System.out.println(">> 直接在代码中配置认证信息（带加密和签名）：");
 
         // 1： 飞来汇openApi配置信息
-            String clientId = "";
-            String clientSecret = "";
-            String aesKey = ""; // 16位AES密钥
-            String rsaPrivateKey = "";
-
+        String clientId = "";
+        String clientSecret = "";
+        String aesKey = ""; // 16位AES密钥
+        String rsaPrivateKey = "";
 
         // 2： 设置配置
         FlywayConfig flywayConfig = new FlywayConfig();
@@ -60,8 +62,7 @@ public class CfaccountApiExample {
             queryBalanceRequest.setOpenId("");
             queryBalanceRequest.setToken(token);
 
-
-            QueryBalanceResponse queryBalanceResponse = cfaccountApi.queryBalance(queryBalanceRequest);
+            CommonResponse<List<CurrencyBalance>> queryBalanceResponse = cfaccountApi.queryBalance(queryBalanceRequest);
             if (queryBalanceResponse.getCode() == 200) {
                 // http == 200 业务code == 200
                 // 查询成功：{"code":200,"message":"请求成功","data":[{"currency":"HKD","multiBalance":{"sdbzj":"0","dcz":"0","ye":"0","drz":"0","fx":"0","ffk":null}},{"currency":"EUR","multiBalance":{"sdbzj":"0","dcz":"0","ye":"0","drz":"0","fx":"0","ffk":null}},{"currency":"USD","multiBalance":{"sdbzj":"0","dcz":"0","ye":"0","drz":"0","fx":"0","ffk":"0"}},{"currency":"CNH","multiBalance":{"sdbzj":"0","dcz":"0","ye":"0","drz":"0","fx":"0","ffk":null}},{"currency":"CNY","multiBalance":{"sdbzj":"0","dcz":"0","ye":"0","drz":"0","fx":null,"ffk":null}}]}

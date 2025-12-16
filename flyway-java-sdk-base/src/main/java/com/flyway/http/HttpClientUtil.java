@@ -1,12 +1,13 @@
 package com.flyway.http;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flyway.common.FlywayConfig;
 import com.flyway.common.model.CipherResponse;
 import com.flyway.common.model.CommonResponse;
+import com.flyway.common.model.FileUploadRequest;
 import com.flyway.exception.FlywayApiException;
 import com.flyway.util.OpenAesUtil;
 import com.flyway.util.OpenRsaUtil;
@@ -15,19 +16,29 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.ByteArrayBody;
+import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * HTTP客户端工具类
@@ -138,6 +149,256 @@ public class HttpClientUtil {
     }
 
     /**
+     * 发送GET请求（带加密和签名）
+     */
+    public <T> T getJsonWithEncryptionAndSignature(String url, Object requestParams, Class<T> responseType, String token, String aesKey, String rsaPrivateKey) throws FlywayApiException {
+        HttpGet httpGet = null;
+        HttpResponse response = null;
+
+        try {
+            // 如果有查询参数，将其添加到URL中
+            String finalUrl = buildUrlWithParams(url, requestParams);
+            httpGet = new HttpGet(finalUrl);
+
+            // 设置基本请求头
+            httpGet.setHeader("Accept", "application/json");
+
+            // 设置认证头
+            if (token != null && !token.trim().isEmpty()) {
+                httpGet.setHeader("Authorization", token);
+            }
+
+            // 设置请求ID
+            String requestId = UUID.randomUUID().toString().replace("-", "");
+            httpGet.setHeader("Request-ID", requestId);
+
+            // 设置时间戳
+            long timestamp = System.currentTimeMillis();
+            httpGet.setHeader("Tuotuo-Timestamp", String.valueOf(timestamp));
+
+            if (config.isDebug()) {
+                logger.info("GET Request URL: {}", finalUrl);
+                logger.info("GET Request Authorization: {}", token);
+            }
+
+            // RSA签名
+            String dataToSign = requestId + "&" + timestamp;
+            String signature = OpenRsaUtil.rsaSign(dataToSign, rsaPrivateKey);
+            httpGet.setHeader("Tuotuo-Signature", signature);
+        if (config.isDebug()) {
+                for (Header allHeader : httpGet.getAllHeaders()) {
+                    logger.info("GET Header: {} - {}", allHeader.getName(), allHeader.getValue());
+        }
+            }
+
+            // 发送请求
+            response = httpClient.execute(httpGet);
+
+            // 处理响应
+            return handleResponse2(response, responseType);
+        } catch (IOException e) {
+            logger.error("HTTP GET request failed", e);
+            throw new FlywayApiException(500, "HTTP GET request failed: " + e.getMessage(), e);
+        } finally {
+            if (httpGet != null) {
+                httpGet.releaseConnection();
+        }
+    }
+}
+
+    /**
+     * 发送简单GET请求（仅token认证）
+     */
+    public <T> T getWithToken(String url, Class<T> responseType, String token, String aesKey, String rsaPrivateKey) throws FlywayApiException {
+        HttpGet httpGet = null;
+        HttpResponse response = null;
+
+        try {
+            httpGet = new HttpGet(url);
+
+            // 设置基本请求头
+            httpGet.setHeader("Accept", "application/json");
+
+            // 设置认证头
+            if (token != null && !token.trim().isEmpty()) {
+                httpGet.setHeader("Authorization", token);
+            }
+
+            // 设置请求ID
+            String requestId = UUID.randomUUID().toString().replace("-", "");
+            httpGet.setHeader("Request-ID", requestId);
+
+            // 设置时间戳
+            long timestamp = System.currentTimeMillis();
+            httpGet.setHeader("Tuotuo-Timestamp", String.valueOf(timestamp));
+
+            // RSA签名
+            String dataToSign = requestId + "&" + timestamp;
+            String signature = OpenRsaUtil.rsaSign(dataToSign, rsaPrivateKey);
+            httpGet.setHeader("Tuotuo-Signature", signature);
+
+            if (config.isDebug()) {
+                logger.info("Simple GET Request URL: {}", url);
+                for (Header allHeader : httpGet.getAllHeaders()) {
+                    logger.info("Simple GET Header: {} - {}", allHeader.getName(), allHeader.getValue());
+                }
+            }
+
+            // 发送请求
+            response = httpClient.execute(httpGet);
+
+            // 处理响应
+            return handleResponse2(response, responseType);
+
+        } catch (IOException e) {
+            logger.error("Simple HTTP GET request failed", e);
+            throw new FlywayApiException(500, "Simple HTTP GET request failed: " + e.getMessage(), e);
+        } finally {
+            if (httpGet != null) {
+                httpGet.releaseConnection();
+            }
+        }
+    }
+
+    /**
+     * 构建带参数的URL
+     */
+    private String buildUrlWithParams(String url, Object requestParams) throws IOException {
+        if (requestParams == null) {
+            return url;
+        }
+
+        // 将请求对象转换为Map
+        String json = objectMapper.writeValueAsString(requestParams);
+        JsonNode jsonNode = objectMapper.readTree(json);
+
+        StringBuilder urlBuilder = new StringBuilder(url);
+        boolean hasParams = url.contains("?");
+
+        jsonNode.fields().forEachRemaining(entry -> {
+            String key = entry.getKey();
+            JsonNode value = entry.getValue();
+
+            // 跳过null值和token字段
+            if (!value.isNull() && !"token".equals(key)) {
+                if (!hasParams && !urlBuilder.toString().contains("?")) {
+                    urlBuilder.append("?");
+                } else {
+                    urlBuilder.append("&");
+                }
+                urlBuilder.append(key).append("=").append(value.asText());
+            }
+        });
+
+        return urlBuilder.toString();
+    }
+
+    /**
+     * 发送POST JSON请求（带加密和签名）
+     */
+    public <T> T postFormDataWithEncryptionAndSignature(String url, FileUploadRequest requestBody, Class<T> responseType, String token, String aesKey, String rsaPrivateKey) throws FlywayApiException {
+        HttpPost httpPost = null;
+        HttpResponse response = null;
+
+        try {
+            httpPost = new HttpPost(url);
+
+            // 设置基本请求头
+            httpPost.setHeader("Accept", "application/json");
+
+            // 设置认证头
+            if (token != null && !token.trim().isEmpty()) {
+                httpPost.setHeader("Authorization", token);
+            }
+
+            // 设置请求ID
+            String requestId = UUID.randomUUID().toString().replace("-", "");
+            httpPost.setHeader("Request-ID", requestId);
+
+            // 设置时间戳
+            long timestamp = System.currentTimeMillis();
+            httpPost.setHeader("Tuotuo-Timestamp", String.valueOf(timestamp));
+
+            if (config.isDebug()) {
+                logger.info("Request URL: {}", url);
+                logger.info("Request Authorization: {}", token);
+
+            }
+
+            // RSA签名
+            String dataToSign = requestId + "&" + timestamp;
+            String signature = OpenRsaUtil.rsaSign(dataToSign, rsaPrivateKey);
+            httpPost.setHeader("Tuotuo-Signature", signature);
+            if (config.isDebug()) {
+                for (Header allHeader : httpPost.getAllHeaders()) {
+                    logger.info("Header: {} - {}", allHeader.getName(), allHeader.getValue());
+                }
+            }
+
+            // 设置请求体
+            if (requestBody != null) {
+                MultipartEntityBuilder multipartBuilder = MultipartEntityBuilder.create()
+                        .setCharset(StandardCharsets.UTF_8)
+                        .setContentType(ContentType.MULTIPART_FORM_DATA);
+                File file = requestBody.getFile();
+                if (file != null&& file.exists() && file.isFile()) {
+                    byte[] fileBytes = Files.readAllBytes(file.toPath());
+                    ContentType contentType = ContentType.APPLICATION_OCTET_STREAM;
+                    // 构建文件体（使用原文件名 + 文件内容）
+                    // 3. 构建文件体（原文件名用 file.getName() 替代 file.getOriginalFilename()）
+                    ByteArrayBody fileBody = new ByteArrayBody(
+                            fileBytes,
+                            contentType,
+                            file.getName() // 获取File的文件名（如 test.png）
+                    );
+                    multipartBuilder.addPart("file", fileBody);
+
+                    if (config.isDebug()) {
+                        logger.info("Upload file name: {}, size: {} bytes",
+                                file.getName(), file.length());
+                    }
+                }
+
+                // 7.2 处理普通参数（requestNo + openID）- 加密后传入
+                Map<String, String> normalParams = new HashMap<>();
+                normalParams.put("requestNo", requestBody.getRequestNo());
+                normalParams.put("openID", requestBody.getOpenID());
+
+                // 加密普通参数（转为JSON后AES加密 + Base64编码）
+                String normalParamsJson = objectMapper.writeValueAsString(normalParams);
+
+                // AES加密请求体
+                String encryptedParams = OpenAesUtil.encryptAndBase64Encode(normalParamsJson, aesKey);
+
+                // 将加密后的参数以 form-data 字段传入（字段名：ciphertext）
+                StringBody ciphertextBody = new StringBody(
+                        encryptedParams,
+                        ContentType.TEXT_PLAIN.withCharset(StandardCharsets.UTF_8)
+                );
+                multipartBuilder.addPart("ciphertext", ciphertextBody);
+
+                if (config.isDebug()) {
+                    logger.info("Original Request Body: {}", normalParamsJson);
+                    logger.info("Encrypted Request Body: {}", encryptedParams);
+                }
+                   httpPost.setEntity(multipartBuilder.build());
+                }
+                // 发送请求
+                response = httpClient.execute(httpPost);
+
+                // 处理响应
+                return handleResponse2(response, responseType);
+
+        } catch (IOException e) {
+            logger.error("HTTP request failed", e);
+            throw new FlywayApiException(500, "HTTP request failed: " + e.getMessage(), e);
+        } finally {
+            if (httpPost != null) {
+                httpPost.releaseConnection();
+            }
+        }
+    }
+    /**
      * 发送POST表单URL编码请求（用于OAuth2 token请求）
      */
     public <T> T postFormUrlEncoded(String url, Class<T> responseType) throws FlywayApiException {
@@ -209,7 +470,15 @@ public class HttpClientUtil {
 
         if (statusCode >= 200 && statusCode < 300) {
             CipherResponse cipherResponse = objectMapper.readValue(responseContent, CipherResponse.class);
-            String jsonData = OpenAesUtil.decryptAfterBase64Decode(cipherResponse.getData().getCiphertext(), config.getAesKey());
+            // 检查cipherResponse及其data是否为null
+            String jsonData = null;
+            if (cipherResponse != null && cipherResponse.getData() != null) {
+                jsonData = OpenAesUtil.decryptAfterBase64Decode(cipherResponse.getData().getCiphertext(), config.getAesKey());
+            }
+
+            if (config.isDebug()) {
+                logger.info("Response Body decrypt: {}", jsonData);
+            }
             if (StringUtils.isNotBlank(jsonData) && !"null".equals(jsonData)) {
                 // 构建完整的响应JSON对象
                 ObjectNode fullResponseNode = objectMapper.createObjectNode();
@@ -247,6 +516,75 @@ public class HttpClientUtil {
         } else {
             throw new FlywayApiException(statusCode, statusCode,
                     "HTTP request failed with status: " + statusCode + ", response: " + responseContent);
+        }
+    }
+
+    /**
+     * 处理回调请求，包括验签和解密
+     *
+     * @param request HttpServletRequest对象
+     * @return 解密后的JSON报文，处理失败返回null
+     */
+    public String handleCallback(HttpServletRequest request) {
+        try {
+            // 从Header获取必要参数
+            String timestamp = request.getHeader("Tuotuo-Timestamp");
+            String requestId = request.getHeader("Request-ID");
+            String signature = request.getHeader("Tuotuo-Signature");
+
+            if (timestamp == null || requestId == null || signature == null) {
+                logger.warn("回调请求缺少必要的Header参数");
+                return null;
+            }
+
+            // 验签
+            String verifyData = requestId + "&" + timestamp;
+            String publicKey = config.getFlywayRsaPublicKey();
+            if (publicKey == null || publicKey.isEmpty()) {
+                logger.warn("验签公钥未配置");
+                return null;
+            }
+
+            try {
+                OpenRsaUtil.rsaVerify(verifyData, publicKey, signature);
+                logger.debug("回调请求验签成功");
+            } catch (Exception e) {
+                logger.warn("回调请求验签失败: {}", e.getMessage());
+                return null;
+            }
+
+            // 读取请求体
+            String body = readRequestBody(request);
+            if (body == null || body.isEmpty()) {
+                logger.warn("回调请求体为空");
+                return null;
+            }
+
+            // 解析并解密数据
+            try {
+                String decryptedData = OpenAesUtil.decryptAfterBase64Decode(body, config.getAesKey());
+                logger.debug("回调请求解密成功");
+                return decryptedData;
+            } catch (Exception e) {
+                logger.warn("回调请求解密失败: {}", e.getMessage());
+                return null;
+            }
+        } catch (Exception e) {
+            logger.error("处理回调请求时发生错误", e);
+            return null;
+        }
+    }
+
+    /**
+     * 读取HttpServletRequest的请求体
+     *
+     * @param request HttpServletRequest对象
+     * @return 请求体内容
+     * @throws IOException IO异常
+     */
+    private String readRequestBody(HttpServletRequest request) throws IOException {
+        try (BufferedReader reader = request.getReader()) {
+            return reader.lines().collect(Collectors.joining(System.lineSeparator()));
         }
     }
 

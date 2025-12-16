@@ -1,11 +1,10 @@
 package com.flyway.kyc.model;
 
-import java.io.Serializable;
-import java.time.LocalDate;
-import java.util.List;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.io.Serializable;
+import java.util.List;
 
 /**
  * 企业董事实体

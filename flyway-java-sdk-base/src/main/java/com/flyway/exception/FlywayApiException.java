@@ -1,7 +1,5 @@
 package com.flyway.exception;
 
-import com.flyway.util.JsonUtil;
-
 /**
  * Inflyway API异常
  */

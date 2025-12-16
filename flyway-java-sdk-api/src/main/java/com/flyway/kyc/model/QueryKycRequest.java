@@ -2,7 +2,6 @@ package com.flyway.kyc.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.flyway.common.model.CommonRequest;
-
 import lombok.Data;
 
 /**

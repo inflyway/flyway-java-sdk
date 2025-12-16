@@ -35,7 +35,7 @@
         <dependency>
             <groupId>com.flyway</groupId>
             <artifactId>flyway-java-sdk-api</artifactId>
-${project.version}
+            <version>${project.version}</version>
             <scope>compile</scope>
         </dependency>
      <dependency>

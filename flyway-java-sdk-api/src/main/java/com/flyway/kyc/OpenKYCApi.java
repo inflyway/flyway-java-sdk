@@ -1,17 +1,17 @@
 package com.flyway.kyc;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.flyway.common.FlywayConfig;
 import com.flyway.common.FlywayUrlConstants;
+import com.flyway.common.model.CommonResponse;
 import com.flyway.exception.FlywayApiException;
 import com.flyway.http.AbstractApi;
 import com.flyway.http.HttpClientUtil;
+import com.flyway.kyc.model.KycCo;
 import com.flyway.kyc.model.KycRequest;
-import com.flyway.kyc.model.KycResponse;
+import com.flyway.kyc.model.KycResultInfoCo;
 import com.flyway.kyc.model.QueryKycRequest;
-import com.flyway.kyc.model.QueryKycResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Inflyway SDK客户端
@@ -41,8 +41,8 @@ public class OpenKYCApi extends AbstractApi {
      * @return 查询结果
      * @throws FlywayApiException API调用异常
      */ 
-    public KycResponse enterprise(KycRequest request) throws FlywayApiException {
-        return execute(request, this.enterpriseKycPath, KycResponse.class);
+    public CommonResponse<KycCo> enterprise(KycRequest request) throws FlywayApiException {
+        return execute(request, this.enterpriseKycPath, CommonResponse.class);
     }
     
     /**
@@ -52,7 +52,7 @@ public class OpenKYCApi extends AbstractApi {
      * @return 查询结果
      * @throws FlywayApiException API调用异常
      */ 
-    public QueryKycResponse	queryKyc(QueryKycRequest request) throws FlywayApiException {
-        return execute(request, this.kycQueryPahth, QueryKycResponse.class);
+    public CommonResponse<KycResultInfoCo> queryKyc(QueryKycRequest request) throws FlywayApiException {
+        return execute(request, this.kycQueryPahth, CommonResponse.class);
     }
 }

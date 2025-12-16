@@ -3,15 +3,20 @@ package com.flyway.cfaccount;
 import com.flyway.cfaccount.model.CurrencyBalance;
 import com.flyway.cfaccount.model.MultiBalance;
 import com.flyway.cfaccount.model.QueryBalanceRequest;
-import com.flyway.cfaccount.model.QueryBalanceResponse;
 import com.flyway.common.FlywayConfig;
 import com.flyway.common.TokenApi;
+import com.flyway.common.model.CommonResponse;
 import com.flyway.exception.FlywayApiException;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * OpenCfaccountApi.queryBalance() 方法集成测试
@@ -80,7 +85,7 @@ class OpenCfaccountApiTest {
         // 3. 执行查询
         System.out.println("步骤2: 执行余额查询...");
         long startTime = System.currentTimeMillis();
-        QueryBalanceResponse response = cfaccountApi.queryBalance(request);
+        CommonResponse<List<CurrencyBalance>> response = cfaccountApi.queryBalance(request);
         long endTime = System.currentTimeMillis();
         
         // 4. 验证响应
@@ -128,11 +133,11 @@ class OpenCfaccountApiTest {
         request.setToken(token);
         
         // 连续查询3次
-        QueryBalanceResponse response1 = cfaccountApi.queryBalance(request);
+        CommonResponse<List<CurrencyBalance>> response1 = cfaccountApi.queryBalance(request);
         Thread.yield(); // 让出CPU
-        QueryBalanceResponse response2 = cfaccountApi.queryBalance(request);
+        CommonResponse<List<CurrencyBalance>> response2 = cfaccountApi.queryBalance(request);
         Thread.yield();
-        QueryBalanceResponse response3 = cfaccountApi.queryBalance(request);
+        CommonResponse<List<CurrencyBalance>> response3 = cfaccountApi.queryBalance(request);
         
         // 验证响应代码一致性
         assertEquals(response1.getCode(), response2.getCode(), "连续查询的响应代码应一致");
@@ -162,7 +167,7 @@ class OpenCfaccountApiTest {
         
         for (int i = 0; i < testRounds; i++) {
             long startTime = System.currentTimeMillis();
-            QueryBalanceResponse response = cfaccountApi.queryBalance(request);
+            CommonResponse<List<CurrencyBalance>> response = cfaccountApi.queryBalance(request);
             long endTime = System.currentTimeMillis();
             long responseTime = endTime - startTime;
             
@@ -211,7 +216,7 @@ class OpenCfaccountApiTest {
         
         // 无效Token可能抛出异常或返回错误响应，需要同时处理两种情况
         try {
-            QueryBalanceResponse response = cfaccountApi.queryBalance(request);
+            CommonResponse<List<CurrencyBalance>> response = cfaccountApi.queryBalance(request);
             // 如果没有抛出异常，验证返回错误响应
             System.out.println("✓ 收到错误响应:");
             System.out.println("  响应代码: " + response.getCode());
@@ -243,7 +248,7 @@ class OpenCfaccountApiTest {
 
         // 空Token抛出异常
         try {
-            QueryBalanceResponse response = cfaccountApi.queryBalance(request);
+            CommonResponse<List<CurrencyBalance>> response = cfaccountApi.queryBalance(request);
         }catch (FlywayApiException exception) {
 
             System.out.println("✓ 收到错误响应:");
@@ -267,7 +272,7 @@ class OpenCfaccountApiTest {
 
         try {
             // null Token抛出异常
-            QueryBalanceResponse response = cfaccountApi.queryBalance(request);
+            CommonResponse<List<CurrencyBalance>> response = cfaccountApi.queryBalance(request);
         }catch (FlywayApiException exception) {
 
 
@@ -294,7 +299,7 @@ class OpenCfaccountApiTest {
         request.setToken(token);
 
         // 无效OpenId不会抛出异常，而是返回错误响应
-        QueryBalanceResponse response = cfaccountApi.queryBalance(request);
+        CommonResponse<List<CurrencyBalance>> response = cfaccountApi.queryBalance(request);
         System.out.println("✓ 收到错误响应:");
         System.out.println("  响应代码: " + response.getCode());
         System.out.println("  响应消息: " + response.getMessage());
@@ -317,7 +322,7 @@ class OpenCfaccountApiTest {
         request.setToken(token);
 
         // 空OpenId不会抛出异常，而是返回错误响应
-        QueryBalanceResponse response = cfaccountApi.queryBalance(request);
+        CommonResponse<List<CurrencyBalance>> response = cfaccountApi.queryBalance(request);
 
         System.out.println("✓ 收到错误响应:");
         System.out.println("  响应代码: " + response.getCode());
@@ -341,7 +346,7 @@ class OpenCfaccountApiTest {
         request.setToken(token);
 
         // null OpenId不会抛出异常，而是返回错误响应
-        QueryBalanceResponse response = cfaccountApi.queryBalance(request);
+        CommonResponse<List<CurrencyBalance>> response = cfaccountApi.queryBalance(request);
         System.out.println("✓ 收到错误响应:");
         System.out.println("  响应代码: " + response.getCode());
         System.out.println("  响应消息: " + response.getMessage());
@@ -359,7 +364,7 @@ class OpenCfaccountApiTest {
 
         // null请求对象可能抛出异常或返回错误响应
         try {
-            QueryBalanceResponse response = cfaccountApi.queryBalance(null);
+            CommonResponse<List<CurrencyBalance>> response = cfaccountApi.queryBalance(null);
             // 如果没有抛出异常，验证返回错误响应
             System.out.println("✓ 收到错误响应:");
             System.out.println("  响应代码: " + response.getCode());
@@ -437,7 +442,7 @@ class OpenCfaccountApiTest {
 
         // 这种情况可能成功（返回空结果）或失败（参数错误）
         try {
-            QueryBalanceResponse response = cfaccountApi.queryBalance(request);
+            CommonResponse<List<CurrencyBalance>> response = cfaccountApi.queryBalance(request);
             System.out.println("✓ 极长OpenId被服务器接受");
             System.out.println("  响应代码: " + response.getCode());
         } catch (FlywayApiException e) {
@@ -464,7 +469,7 @@ class OpenCfaccountApiTest {
 
         // 这种情况可能成功或失败，取决于服务器验证规则
         try {
-            QueryBalanceResponse response = cfaccountApi.queryBalance(request);
+            CommonResponse<List<CurrencyBalance>> response = cfaccountApi.queryBalance(request);
             System.out.println("✓ 特殊字符OpenId被服务器接受");
             System.out.println("  响应代码: " + response.getCode());
         } catch (FlywayApiException e) {

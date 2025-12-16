@@ -1,13 +1,11 @@
 package com.flyway.kyc.model;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Map;
-
 import com.flyway.common.model.CommonRequest;
-
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * kyc实名请求参数

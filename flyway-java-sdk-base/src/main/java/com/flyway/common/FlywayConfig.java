@@ -9,7 +9,12 @@ public class FlywayConfig {
      * 服务器地址
      */
     private String serverUrl = "https://open.inflyway.com";
-    
+
+    /**
+     * 文件上传服务器地址
+     */
+    private String fileServerUrl = "https://file.inflyway.com";
+
     /**
      * 连接超时时间（毫秒）
      */
@@ -101,6 +106,10 @@ public class FlywayConfig {
      */
     private String rsaPrivateKey;
     /**
+     * FLYWAY,RSA公钥(用于验签)
+     */
+    private String flywayRsaPublicKey;
+    /**
      * 是否启用加密和签名功能
      */
     private boolean enableEncryptionAndSignature = false;
@@ -123,6 +132,14 @@ public class FlywayConfig {
 
     public void setServerUrl(String serverUrl) {
         this.serverUrl = serverUrl;
+    }
+
+    public String getFileServerUrl() {
+        return fileServerUrl;
+    }
+
+    public void setFileServerUrl(String fileServerUrl) {
+        this.fileServerUrl = fileServerUrl;
     }
 
     public int getConnectTimeout() {
@@ -277,6 +294,14 @@ public class FlywayConfig {
         this.rsaPrivateKey = rsaPrivateKey;
     }
 
+    public String getFlywayRsaPublicKey() {
+        return flywayRsaPublicKey;
+    }
+
+    public void setFlywayRsaPublicKey(String flywayRsaPublicKey) {
+        this.flywayRsaPublicKey = flywayRsaPublicKey;
+    }
+
     public boolean isEnableEncryptionAndSignature() {
         return enableEncryptionAndSignature;
     }
@@ -410,6 +435,12 @@ public class FlywayConfig {
             config.setRsaPrivateKey(rsaPrivateKey);
         }
 
+        String flywayRsaPublicKey = PropertiesLoader.getString(properties,
+                "inflyway.decryption.rsa.public.key", null);
+        if (flywayRsaPublicKey != null && !PropertiesLoader.isPlaceholder(flywayRsaPublicKey)) {
+            config.setFlywayRsaPublicKey(flywayRsaPublicKey);
+        }
+
         return config;
     }
 
@@ -437,6 +468,7 @@ public class FlywayConfig {
                 ", enableEncryptionAndSignature=" + enableEncryptionAndSignature +
                 ", aesKey='***'" +  // 隐藏敏感信息
                 ", rsaPrivateKey='***'" +  // 隐藏敏感信息
+                ", flywayRsaPublicKey='***'" +  // 隐藏敏感信息
                 '}';
     }
 }

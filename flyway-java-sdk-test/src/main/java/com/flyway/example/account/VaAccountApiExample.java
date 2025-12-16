@@ -1,4 +1,4 @@
-package com.flyway.example;
+package com.flyway.example.account;
 
 
 import com.flyway.account.OpenVaAccountApi;

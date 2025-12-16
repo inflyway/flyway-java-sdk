@@ -36,7 +36,7 @@ public class OpenVaAccountApi extends AbstractApi {
      * @return 开户结果
      * @throws FlywayApiException API调用异常
      */
-    public CommonResponse openAccount(VaAccountOpenRequest request) throws FlywayApiException {
+    public CommonResponse<Void> openAccount(VaAccountOpenRequest request) throws FlywayApiException {
         return execute(request, this.vaAccountOpenPath, CommonResponse.class);
     }
 
