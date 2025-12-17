@@ -7,7 +7,7 @@ import com.flyway.common.model.CommonResponse;
 import com.flyway.common.model.FileUploadRequest;
 import com.flyway.exception.FlywayApiException;
 import com.flyway.file.OpenFileApi;
-import com.flyway.file.model.FileUplodRespose;
+import com.flyway.file.model.FileUrlInfo;
 
 import java.io.File;
 
@@ -50,8 +50,9 @@ public class FileApiExample {
             request.setFile(new File("\\Desktop\\123.jpg"));
             request.setRequestNo("");
             request.setOpenID("");
-            CommonResponse<FileUplodRespose> res = openFileApi.uploadFile(request);
-            System.out.println("返回结果: "+JSON.toJSONString(res));
+            request.setBiz("KYC");
+            CommonResponse<FileUrlInfo> res = openFileApi.uploadFile(request);
+            System.out.println("返回结果: "+JSON.toJSONString(res.getData()));
 
         } catch ( FlywayApiException e) {
             System.out.println(e.getMessage());

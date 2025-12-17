@@ -1,5 +1,6 @@
 package com.flyway.trade;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.flyway.common.FlywayConfig;
 import com.flyway.common.FlywayUrlConstants;
 import com.flyway.common.model.CommonResponse;
@@ -45,7 +46,8 @@ public class OpenTradeApi extends AbstractApi {
      * @throws FlywayApiException API调用异常
      */
     public CommonResponse<TradeOderCreateInfo> createTrade(TradeOderCreateRequest request) throws FlywayApiException {
-        return execute(request, this.tradeOpenCreatePath, CommonResponse.class);
+        return executeWithTypeRef(request, this.tradeOpenCreatePath, new TypeReference<CommonResponse<TradeOderCreateInfo>>() {
+        });
     }
 
     /**
@@ -55,7 +57,8 @@ public class OpenTradeApi extends AbstractApi {
      * @throws FlywayApiException API调用异常
      */
     public CommonResponse<TradeOrderQueryInfo> queryTrade(TradeOrderQueryRequest request) throws FlywayApiException {
-        return execute(request, this.tradeQueryPath, CommonResponse.class);
+        return executeWithTypeRef(request, this.tradeQueryPath, new TypeReference<CommonResponse<TradeOrderQueryInfo>>() {
+        });
     }
 
     /**
@@ -65,7 +68,8 @@ public class OpenTradeApi extends AbstractApi {
      * @throws FlywayApiException API调用异常
      */
     public CommonResponse<TradeOderBindInfo> bindOpenTrade(TradeOrderBindRequest request) throws FlywayApiException {
-        return execute(request, this.tradeBindPath, CommonResponse.class);
+        return executeWithTypeRef(request, this.tradeBindPath, new TypeReference<CommonResponse<TradeOderBindInfo>>() {
+        });
     }
 
     /**
@@ -75,7 +79,8 @@ public class OpenTradeApi extends AbstractApi {
      * @throws FlywayApiException API调用异常
      */
     public CommonResponse<TradeOrderQueryAuditInfo> queryAuditStatus(TradeOrderQueryAuditRequest request) throws FlywayApiException {
-        return execute(request, this.tradeQueryAuditPath, CommonResponse.class);
+        return executeWithTypeRef(request, this.tradeQueryAuditPath, new TypeReference<CommonResponse<TradeOrderQueryAuditInfo>>() {
+        });
     }
 
 }

@@ -1,11 +1,12 @@
 package com.flyway.file;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.flyway.common.FlywayConfig;
 import com.flyway.common.FlywayUrlConstants;
 import com.flyway.common.model.CommonResponse;
 import com.flyway.common.model.FileUploadRequest;
 import com.flyway.exception.FlywayApiException;
-import com.flyway.file.model.FileUplodRespose;
+import com.flyway.file.model.FileUrlInfo;
 import com.flyway.http.AbstractApi;
 import com.flyway.http.HttpClientUtil;
 
@@ -34,8 +35,9 @@ public class OpenFileApi extends AbstractApi {
      * @return 文件上传结果
      * @throws FlywayApiException API调用异常
      */
-    public CommonResponse<FileUplodRespose> uploadFile(FileUploadRequest request) throws FlywayApiException {
-        return multipartExecute(request, this.fileUploadUrl, FileUplodRespose.class);
+    public CommonResponse<FileUrlInfo> uploadFile(FileUploadRequest request) throws FlywayApiException {
+        return multipartExecute(request, this.fileUploadUrl, new TypeReference<CommonResponse<FileUrlInfo>>() {
+        });
     }
 
 

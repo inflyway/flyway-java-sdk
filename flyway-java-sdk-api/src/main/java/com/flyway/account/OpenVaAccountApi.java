@@ -1,5 +1,6 @@
 package com.flyway.account;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.flyway.account.model.VaAccountInfoDto;
 import com.flyway.account.model.VaAccountOpenRequest;
 import com.flyway.account.model.VaAccountQueryRequest;
@@ -37,7 +38,8 @@ public class OpenVaAccountApi extends AbstractApi {
      * @throws FlywayApiException API调用异常
      */
     public CommonResponse<Void> openAccount(VaAccountOpenRequest request) throws FlywayApiException {
-        return execute(request, this.vaAccountOpenPath, CommonResponse.class);
+        return executeWithTypeRef(request, this.vaAccountOpenPath, new TypeReference<CommonResponse<Void>>() {
+        });
     }
 
     /**
@@ -48,6 +50,7 @@ public class OpenVaAccountApi extends AbstractApi {
      * @throws FlywayApiException API调用异常
      */
     public CommonResponse<VaAccountInfoDto> queryAccount(VaAccountQueryRequest request) throws FlywayApiException {
-        return execute(request, this.vaAccountQueryPath, CommonResponse.class);
+        return executeWithTypeRef(request, this.vaAccountQueryPath, new TypeReference<CommonResponse<VaAccountInfoDto>>() {
+        });
     }
 }

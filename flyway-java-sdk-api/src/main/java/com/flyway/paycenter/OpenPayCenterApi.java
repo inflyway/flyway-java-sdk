@@ -1,6 +1,7 @@
 package com.flyway.paycenter;
 
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.flyway.common.FlywayConfig;
 import com.flyway.common.FlywayUrlConstants;
 import com.flyway.common.model.CommonResponse;
@@ -43,6 +44,7 @@ public class OpenPayCenterApi extends AbstractApi {
      * @throws FlywayApiException API调用异常
      */
     public CommonResponse<FundflowQryResponse> fundflowQuery(FundflowQryRequest request) throws FlywayApiException {
-        return execute(request, this.fundflowQueryPath, CommonResponse.class);
+        return executeWithTypeRef(request, this.fundflowQueryPath, new TypeReference<CommonResponse<FundflowQryResponse>>() {
+        });
     }
 }

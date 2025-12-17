@@ -1,5 +1,6 @@
 package com.flyway.http;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,6 +10,7 @@ import com.flyway.common.model.CipherResponse;
 import com.flyway.common.model.CommonResponse;
 import com.flyway.common.model.FileUploadRequest;
 import com.flyway.exception.FlywayApiException;
+import com.flyway.util.JsonUtil;
 import com.flyway.util.OpenAesUtil;
 import com.flyway.util.OpenRsaUtil;
 import org.apache.commons.lang3.StringUtils;
@@ -53,7 +55,7 @@ public class HttpClientUtil {
 
     public HttpClientUtil(FlywayConfig config) {
         this.config = config;
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = JsonUtil.getObjectMapper();
         this.httpClient = createHttpClient();
     }
 
@@ -72,7 +74,7 @@ public class HttpClientUtil {
     /**
      * 发送POST JSON请求（带加密和签名）
      */
-    public <T> T postJsonWithEncryptionAndSignature(String url, Object requestBody, Class<T> responseType, String token, String aesKey, String rsaPrivateKey) throws FlywayApiException {
+    public <T> T postJsonWithEncryptionAndSignature(String url, Object requestBody, TypeReference<T> responseType, String token, String aesKey, String rsaPrivateKey) throws FlywayApiException {
         HttpPost httpPost = null;
         HttpResponse response = null;
 
@@ -136,7 +138,7 @@ public class HttpClientUtil {
             response = httpClient.execute(httpPost);
 
             // 处理响应
-            return handleResponse2(response, responseType);
+            return handleResponseWithTypeRef(response, responseType);
 
         } catch (IOException e) {
             logger.error("HTTP request failed", e);
@@ -151,7 +153,7 @@ public class HttpClientUtil {
     /**
      * 发送GET请求（带加密和签名）
      */
-    public <T> T getJsonWithEncryptionAndSignature(String url, Object requestParams, Class<T> responseType, String token, String aesKey, String rsaPrivateKey) throws FlywayApiException {
+    public <T> T getJsonWithEncryptionAndSignature(String url, Object requestParams, TypeReference<T> responseType, String token, String aesKey, String rsaPrivateKey) throws FlywayApiException {
         HttpGet httpGet = null;
         HttpResponse response = null;
 
@@ -185,62 +187,9 @@ public class HttpClientUtil {
             String dataToSign = requestId + "&" + timestamp;
             String signature = OpenRsaUtil.rsaSign(dataToSign, rsaPrivateKey);
             httpGet.setHeader("Tuotuo-Signature", signature);
-        if (config.isDebug()) {
+            if (config.isDebug()) {
                 for (Header allHeader : httpGet.getAllHeaders()) {
                     logger.info("GET Header: {} - {}", allHeader.getName(), allHeader.getValue());
-        }
-            }
-
-            // 发送请求
-            response = httpClient.execute(httpGet);
-
-            // 处理响应
-            return handleResponse2(response, responseType);
-        } catch (IOException e) {
-            logger.error("HTTP GET request failed", e);
-            throw new FlywayApiException(500, "HTTP GET request failed: " + e.getMessage(), e);
-        } finally {
-            if (httpGet != null) {
-                httpGet.releaseConnection();
-        }
-    }
-}
-
-    /**
-     * 发送简单GET请求（仅token认证）
-     */
-    public <T> T getWithToken(String url, Class<T> responseType, String token, String aesKey, String rsaPrivateKey) throws FlywayApiException {
-        HttpGet httpGet = null;
-        HttpResponse response = null;
-
-        try {
-            httpGet = new HttpGet(url);
-
-            // 设置基本请求头
-            httpGet.setHeader("Accept", "application/json");
-
-            // 设置认证头
-            if (token != null && !token.trim().isEmpty()) {
-                httpGet.setHeader("Authorization", token);
-            }
-
-            // 设置请求ID
-            String requestId = UUID.randomUUID().toString().replace("-", "");
-            httpGet.setHeader("Request-ID", requestId);
-
-            // 设置时间戳
-            long timestamp = System.currentTimeMillis();
-            httpGet.setHeader("Tuotuo-Timestamp", String.valueOf(timestamp));
-
-            // RSA签名
-            String dataToSign = requestId + "&" + timestamp;
-            String signature = OpenRsaUtil.rsaSign(dataToSign, rsaPrivateKey);
-            httpGet.setHeader("Tuotuo-Signature", signature);
-
-            if (config.isDebug()) {
-                logger.info("Simple GET Request URL: {}", url);
-                for (Header allHeader : httpGet.getAllHeaders()) {
-                    logger.info("Simple GET Header: {} - {}", allHeader.getName(), allHeader.getValue());
                 }
             }
 
@@ -248,11 +197,10 @@ public class HttpClientUtil {
             response = httpClient.execute(httpGet);
 
             // 处理响应
-            return handleResponse2(response, responseType);
-
+            return handleResponseWithTypeRef(response, responseType);
         } catch (IOException e) {
-            logger.error("Simple HTTP GET request failed", e);
-            throw new FlywayApiException(500, "Simple HTTP GET request failed: " + e.getMessage(), e);
+            logger.error("HTTP GET request failed", e);
+            throw new FlywayApiException(500, "HTTP GET request failed: " + e.getMessage(), e);
         } finally {
             if (httpGet != null) {
                 httpGet.releaseConnection();
@@ -296,7 +244,7 @@ public class HttpClientUtil {
     /**
      * 发送POST JSON请求（带加密和签名）
      */
-    public <T> T postFormDataWithEncryptionAndSignature(String url, FileUploadRequest requestBody, Class<T> responseType, String token, String aesKey, String rsaPrivateKey) throws FlywayApiException {
+    public <T> T postFormDataWithEncryptionAndSignature(String url, FileUploadRequest requestBody, TypeReference<T> responseType, String token, String aesKey, String rsaPrivateKey) throws FlywayApiException {
         HttpPost httpPost = null;
         HttpResponse response = null;
 
@@ -363,6 +311,7 @@ public class HttpClientUtil {
                 Map<String, String> normalParams = new HashMap<>();
                 normalParams.put("requestNo", requestBody.getRequestNo());
                 normalParams.put("openID", requestBody.getOpenID());
+                normalParams.put("biz", requestBody.getBiz());
 
                 // 加密普通参数（转为JSON后AES加密 + Base64编码）
                 String normalParamsJson = objectMapper.writeValueAsString(normalParams);
@@ -387,7 +336,7 @@ public class HttpClientUtil {
                 response = httpClient.execute(httpPost);
 
                 // 处理响应
-                return handleResponse2(response, responseType);
+                return handleResponseWithTypeRef(response, responseType);
 
         } catch (IOException e) {
             logger.error("HTTP request failed", e);
@@ -398,6 +347,7 @@ public class HttpClientUtil {
             }
         }
     }
+
     /**
      * 发送POST表单URL编码请求（用于OAuth2 token请求）
      */
@@ -458,7 +408,7 @@ public class HttpClientUtil {
     /**
      * 处理HTTP响应
      */
-    private <T> T handleResponse2(HttpResponse response, Class<T> responseType) throws FlywayApiException, IOException {
+    private <T> T handleResponseWithTypeRef(HttpResponse response, TypeReference<T> responseType) throws FlywayApiException, IOException {
         int statusCode = response.getStatusLine().getStatusCode();
         HttpEntity responseEntity = response.getEntity();
         String responseContent = EntityUtils.toString(responseEntity, StandardCharsets.UTF_8);
@@ -479,6 +429,7 @@ public class HttpClientUtil {
             if (config.isDebug()) {
                 logger.info("Response Body decrypt: {}", jsonData);
             }
+            
             if (StringUtils.isNotBlank(jsonData) && !"null".equals(jsonData)) {
                 // 构建完整的响应JSON对象
                 ObjectNode fullResponseNode = objectMapper.createObjectNode();
@@ -496,27 +447,78 @@ public class HttpClientUtil {
                         .readValue(fullResponseNode.toString());
                 return t;
             }
-            // 异常场景：解密后数据为空或null，返回对象但忽略data
-            if (CommonResponse.class.isAssignableFrom(responseType)) {
-                try {
-                    T errorResponse = responseType.getDeclaredConstructor().newInstance();
-                    if (errorResponse instanceof CommonResponse) {
-                        CommonResponse commonResponse = (CommonResponse) errorResponse;
-                        commonResponse.setCode(cipherResponse.getCode());
-                        commonResponse.setMessage(cipherResponse.getMessage());
-                    }
-                    return errorResponse;
-                } catch (Exception e) {
-                    logger.error("Failed to create response object for empty data scenario", e);
-                    throw new FlywayApiException(statusCode, "Failed to process empty response data: " + e.getMessage(), e);
-                }
-            } else {
-                throw new FlywayApiException(statusCode, "Response data is empty, cannot create response object");
-            }
+            
+            return createEmptyResponseWithTypeRef(responseType, cipherResponse);
         } else {
             throw new FlywayApiException(statusCode, statusCode,
                     "HTTP request failed with status: " + statusCode + ", response: " + responseContent);
         }
+    }
+
+    /**
+     * 创建空响应对象 (TypeReference版本)
+     */
+    private <T> T createEmptyResponseWithTypeRef(TypeReference<T> responseType, CipherResponse cipherResponse) throws FlywayApiException {
+        try {
+            // 获取TypeReference的原始类型
+            java.lang.reflect.Type type = responseType.getType();
+            
+            // 尝试直接创建CommonResponse实例
+            if (isCommonResponseType(type)) {
+                T response = createCommonResponseInstance(type);
+                if (response instanceof CommonResponse) {
+                    CommonResponse commonResponse = (CommonResponse) response;
+                    commonResponse.setCode(cipherResponse.getCode());
+                    commonResponse.setMessage(cipherResponse.getMessage());
+                }
+                return response;
+            }
+            
+            // 回退到ObjectMapper方式
+            T errorResponse = objectMapper.readerFor(responseType)
+                    .without(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+                    .readValue("{}");
+            
+            // 如果是CommonResponse类型，设置code和message
+            if (errorResponse instanceof CommonResponse) {
+                CommonResponse commonResponse = (CommonResponse) errorResponse;
+                commonResponse.setCode(cipherResponse.getCode());
+                commonResponse.setMessage(cipherResponse.getMessage());
+            }
+            return errorResponse;
+        } catch (Exception e) {
+            logger.error("Failed to create response object for empty data scenario", e);
+            throw new FlywayApiException(cipherResponse.getCode(), 
+                "Failed to process empty response data: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 检查是否为CommonResponse类型
+     */
+    private boolean isCommonResponseType(java.lang.reflect.Type type) {
+        if (type instanceof Class) {
+            return CommonResponse.class.isAssignableFrom((Class<?>) type);
+        } else if (type instanceof java.lang.reflect.ParameterizedType) {
+            java.lang.reflect.ParameterizedType paramType = (java.lang.reflect.ParameterizedType) type;
+            Class<?> rawClass = (Class<?>) paramType.getRawType();
+            return CommonResponse.class.isAssignableFrom(rawClass);
+        }
+        return false;
+    }
+
+    /**
+     * 创建CommonResponse实例
+     */
+    private <T> T createCommonResponseInstance(java.lang.reflect.Type type) throws Exception {
+        if (type instanceof Class) {
+            return (T) ((Class<?>) type).getDeclaredConstructor().newInstance();
+        } else if (type instanceof java.lang.reflect.ParameterizedType) {
+            java.lang.reflect.ParameterizedType paramType = (java.lang.reflect.ParameterizedType) type;
+            Class<?> rawClass = (Class<?>) paramType.getRawType();
+            return (T) rawClass.getDeclaredConstructor().newInstance();
+        }
+        throw new IllegalArgumentException("Unsupported type: " + type);
     }
 
     /**

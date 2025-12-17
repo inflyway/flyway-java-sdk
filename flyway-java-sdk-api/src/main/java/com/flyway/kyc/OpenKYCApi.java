@@ -1,5 +1,6 @@
 package com.flyway.kyc;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.flyway.common.FlywayConfig;
 import com.flyway.common.FlywayUrlConstants;
 import com.flyway.common.model.CommonResponse;
@@ -42,7 +43,8 @@ public class OpenKYCApi extends AbstractApi {
      * @throws FlywayApiException API调用异常
      */ 
     public CommonResponse<KycCo> enterprise(KycRequest request) throws FlywayApiException {
-        return execute(request, this.enterpriseKycPath, CommonResponse.class);
+        return executeWithTypeRef(request, this.enterpriseKycPath, new TypeReference<CommonResponse<KycCo>>() {
+        });
     }
     
     /**
@@ -53,6 +55,7 @@ public class OpenKYCApi extends AbstractApi {
      * @throws FlywayApiException API调用异常
      */ 
     public CommonResponse<KycResultInfoCo> queryKyc(QueryKycRequest request) throws FlywayApiException {
-        return execute(request, this.kycQueryPahth, CommonResponse.class);
+        return executeWithTypeRef(request, this.kycQueryPahth, new TypeReference<CommonResponse<KycResultInfoCo>>() {
+        });
     }
 }

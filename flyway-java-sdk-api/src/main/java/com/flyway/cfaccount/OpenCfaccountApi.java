@@ -1,5 +1,6 @@
 package com.flyway.cfaccount;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.flyway.cfaccount.model.CurrencyBalance;
 import com.flyway.cfaccount.model.QueryBalanceRequest;
 import com.flyway.common.FlywayConfig;
@@ -41,6 +42,7 @@ public class OpenCfaccountApi extends AbstractApi {
      * @throws FlywayApiException API调用异常
      */
     public CommonResponse<List<CurrencyBalance>> queryBalance(QueryBalanceRequest request) throws FlywayApiException {
-        return execute(request, this.queryBalancePath, CommonResponse.class);
+        return executeWithTypeRef(request, this.queryBalancePath, new TypeReference<CommonResponse<List<CurrencyBalance>>>() {
+        });
     }
 }

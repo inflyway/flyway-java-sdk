@@ -1,5 +1,6 @@
 package com.flyway.withdraw;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.flyway.common.FlywayConfig;
 import com.flyway.common.FlywayUrlConstants;
 import com.flyway.common.model.CommonResponse;
@@ -54,7 +55,8 @@ public class OpenWithdrawApi extends AbstractApi {
      * @throws FlywayApiException API调用异常
      */
     public CommonResponse<WithdrawAmountDto> queryWithdrawAmt(WithdrawAmountRequest request) throws FlywayApiException {
-        return execute(request, this.withdrawAmtQryPath, CommonResponse.class);
+        return executeWithTypeRef(request, this.withdrawAmtQryPath, new TypeReference<CommonResponse<WithdrawAmountDto>>() {
+        });
     }
 
     /**
@@ -65,7 +67,8 @@ public class OpenWithdrawApi extends AbstractApi {
      * @throws FlywayApiException API调用异常
      */
     public CommonResponse<TrailAmountResponseDto> trailAmount(TrailAmountRequest request) throws FlywayApiException {
-        return execute(request, this.trailAmtQryPath, CommonResponse.class);
+        return executeWithTypeRef(request, this.trailAmtQryPath, new TypeReference<CommonResponse<TrailAmountResponseDto>>() {
+        });
     }
 
     /**
@@ -76,7 +79,8 @@ public class OpenWithdrawApi extends AbstractApi {
      * @throws FlywayApiException API调用异常
      */
     public CommonResponse<ApplyWithdrawResponseDto> applyWithdraw(ApplyWithdrawRequest request) throws FlywayApiException {
-        return execute(request, this.applyWithdrawPath, CommonResponse.class);
+        return executeWithTypeRef(request, this.applyWithdrawPath, new TypeReference<CommonResponse<ApplyWithdrawResponseDto>>() {
+        });
     }
 
     /**
@@ -87,7 +91,8 @@ public class OpenWithdrawApi extends AbstractApi {
      * @throws FlywayApiException API调用异常
      */
     public CommonResponse<QueryWithdrawStatusResponseDto> queryWithdrawStatus(QueryWithdrawStatusRequest request) throws FlywayApiException {
-        return execute(request, this.withdrawStatusQryPath, CommonResponse.class);
+        return executeWithTypeRef(request, this.withdrawStatusQryPath, new TypeReference<CommonResponse<QueryWithdrawStatusResponseDto>>() {
+        });
     }
 
     /**
@@ -98,6 +103,7 @@ public class OpenWithdrawApi extends AbstractApi {
      * @throws FlywayApiException API调用异常
      */
     public CommonResponse<Void> updateCardRepayment(UpdateCardRepaymentRequest request) throws FlywayApiException {
-        return execute(request, this.updateCardRepaymentPath, CommonResponse.class);
+        return executeWithTypeRef(request, this.updateCardRepaymentPath, new TypeReference<CommonResponse<Void>>() {
+        });
     }
 }

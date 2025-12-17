@@ -23,6 +23,11 @@ public class FileUploadRequest extends CommonRequest {
      */
     private String openID;
 
+    /**
+     * 业务编码
+     */
+    private String biz;
+
     public FileUploadRequest() {
     }
 
@@ -54,5 +59,13 @@ public class FileUploadRequest extends CommonRequest {
 
     public void setOpenID(String openID) {
         this.openID = openID;
+    }
+
+    public String getBiz() {
+        return biz;
+    }
+
+    public void setBiz(String biz) {
+        this.biz = biz;
     }
 }

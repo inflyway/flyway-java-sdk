@@ -1,5 +1,6 @@
 package com.flyway.http;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.flyway.common.FlywayConfig;
 import com.flyway.common.model.CommonRequest;
 import com.flyway.common.model.FileUploadRequest;
@@ -28,9 +29,9 @@ public abstract class AbstractApi implements AutoCloseable {
     }
 
     /**
-     * 执行POST请求
+     * 执行POST请求 支持TypeReference
      */
-    public <T> T execute(CommonRequest request, String path, Class<T> responseType) throws FlywayApiException {
+    public <T> T executeWithTypeRef(CommonRequest request, String path, TypeReference<T> responseType) throws FlywayApiException {
         String url = config.getServerUrl() + path;
         // 请求接口
         return httpClient.postJsonWithEncryptionAndSignature(url, request, responseType,
@@ -38,34 +39,13 @@ public abstract class AbstractApi implements AutoCloseable {
     }
 
     /**
-     * 执行GET请求
+     * 执行GET请求 支持TypeReference
      */
-    public <T> T executeGet(CommonRequest request, String path, Class<T> responseType) throws FlywayApiException {
+    public <T> T executeGetWithTypeRef(CommonRequest request, String path, TypeReference<T> responseType) throws FlywayApiException {
         logger.debug("执行GET请求: {}{}", config.getServerUrl(), path);
-            // GET请求接口 - 将请求参数转换为查询字符串
+        // GET请求接口 - 将请求参数转换为查询字符串
         return httpClient.getJsonWithEncryptionAndSignature(config.getServerUrl() + path, request, responseType,
                 request.getToken(), config.getAesKey(), config.getRsaPrivateKey());
-    }
-    /**
-     * 执行GET请求（无请求体版本）
-     */
-    public <T> T executeGet(String token, String path, Class<T> responseType) throws FlywayApiException {
-        logger.debug("执行简单GET请求: {}{}", config.getServerUrl(), path);
-        // GET请求接口（仅token认证）
-        return httpClient.getWithToken(config.getServerUrl() + path, responseType, token, config.getAesKey(), config.getRsaPrivateKey());
-    }
-    /**
-     * 执行GET请求（带查询参数字符串）
-     */
-    public <T> T executeGetWithParams(String path, String queryParams, String token, Class<T> responseType) throws FlywayApiException {
-        String url = config.getServerUrl() + path;
-        if (queryParams != null && !queryParams.isEmpty()) {
-            url += (url.contains("?") ? "&" : "?") + queryParams;
-        }
-
-        logger.debug("执行带参数GET请求: {}", url);
-
-            return httpClient.getWithToken(url, responseType, token, config.getAesKey(), config.getRsaPrivateKey());
     }
 
     /**
@@ -78,10 +58,13 @@ public abstract class AbstractApi implements AutoCloseable {
         return httpClient.handleCallback(request);
     }
 
-    public <T> T multipartExecute(FileUploadRequest request, String path, Class<T> responseType) throws FlywayApiException {
+    /**
+     * 执行文件上传请求 支持TypeReference
+     */
+    public <T> T multipartExecute(FileUploadRequest request, String path, TypeReference<T> responseType) throws FlywayApiException {
         String url = config.getFileServerUrl() + path;
         // 请求接口
-        return  httpClient.postFormDataWithEncryptionAndSignature(url, request, responseType,
+        return httpClient.postFormDataWithEncryptionAndSignature(url, request, responseType,
                 request.getToken(), config.getAesKey(), config.getRsaPrivateKey());
     }
 

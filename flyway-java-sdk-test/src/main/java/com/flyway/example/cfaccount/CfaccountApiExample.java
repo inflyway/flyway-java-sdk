@@ -49,7 +49,7 @@ public class CfaccountApiExample {
         flywayConfig.setClientSecret(clientSecret);
         flywayConfig.setAesKey(aesKey);
         flywayConfig.setRsaPrivateKey(rsaPrivateKey);
-//            flywayConfig.setDebug(true);
+        flywayConfig.setDebug(true);
 //
         try {
             // 3： 获取token（有效期2小时） 请使用缓存进行管理，不要频繁调用

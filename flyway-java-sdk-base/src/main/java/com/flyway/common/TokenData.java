@@ -138,7 +138,7 @@ public class TokenData {
         if (accessToken == null || tokenType == null) {
             return null;
         }
-        return tokenType + " " + accessToken;
+        return "Bearer " + accessToken;
     }
     
     @Override

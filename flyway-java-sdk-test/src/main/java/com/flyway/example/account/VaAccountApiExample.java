@@ -63,9 +63,9 @@ public class VaAccountApiExample {
             OpenVaAccountApi vaAccountApi = new OpenVaAccountApi(flywayConfig);
             
             VaAccountOpenRequest request = new VaAccountOpenRequest();
-            request.setRequestNo("20251127000001");
+            request.setRequestNo("");
             request.setOpenID("");
-            request.setBankCardNo("10000000000003");
+            request.setBankCardNo("");
             request.setNoticeUrl("https://crooked-babushka.info/");
 
             //bankCardNo in (10000000000016,10000000000017,10000000000018,10000000000011，10000000000012,10000000000014)
@@ -82,7 +82,7 @@ public class VaAccountApiExample {
             request.setSupplementInformation(supplementInfo);
             request.setToken(token);
 
-            CommonResponse<?> response = vaAccountApi.openAccount(request);
+            CommonResponse<Void> response = vaAccountApi.openAccount(request);
 
             // 5： 输出返回结果
             System.out.println("开户返回结果: " + response);
@@ -123,8 +123,8 @@ public class VaAccountApiExample {
             OpenVaAccountApi vaAccountApi = new OpenVaAccountApi(flywayConfig);
             
             VaAccountQueryRequest request = new VaAccountQueryRequest();
-            request.setRequestNo("20251127000001");
-            request.setBankCardNo("10000000000003");
+            request.setRequestNo("");
+            request.setBankCardNo("");
             request.setOpenID("");
             request.setToken(token);
 

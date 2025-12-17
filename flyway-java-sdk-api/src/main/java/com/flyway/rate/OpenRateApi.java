@@ -1,13 +1,14 @@
 package com.flyway.rate;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.flyway.common.FlywayConfig;
 import com.flyway.common.FlywayUrlConstants;
 import com.flyway.common.model.CommonResponse;
 import com.flyway.exception.FlywayApiException;
 import com.flyway.http.AbstractApi;
 import com.flyway.http.HttpClientUtil;
+import com.flyway.rate.model.CustomRateConfig;
 import com.flyway.rate.model.CustomRateRequest;
-import com.flyway.rate.model.OpenRateRespose;
 
 /**
  * 费率配置相关接口
@@ -37,8 +38,9 @@ public class OpenRateApi extends AbstractApi {
      * @return 响应结果
      * @throws FlywayApiException API调用异常
      */
-    public CommonResponse modify(CustomRateRequest request) throws FlywayApiException {
-        return execute(request, this.modifyRateOpenPath, CommonResponse.class);
+    public CommonResponse<Void> modify(CustomRateRequest request) throws FlywayApiException {
+        return executeWithTypeRef(request, this.modifyRateOpenPath, new TypeReference<CommonResponse<Void>>() {
+        });
     }
 
     /**
@@ -47,8 +49,9 @@ public class OpenRateApi extends AbstractApi {
      * @return 响应结果
      * @throws FlywayApiException API调用异常
      */
-    public CommonResponse<OpenRateRespose> customRateList(CustomRateRequest request) throws FlywayApiException {
-        return execute(request, this.queryCustomRatePath, OpenRateRespose.class);
+    public CommonResponse<CustomRateConfig> customRateList(CustomRateRequest request) throws FlywayApiException {
+        return executeWithTypeRef(request, this.queryCustomRatePath, new TypeReference<CommonResponse<CustomRateConfig>>() {
+        });
     }
 
 }

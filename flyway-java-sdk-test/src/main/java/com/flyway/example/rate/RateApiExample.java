@@ -6,24 +6,20 @@ import com.flyway.common.TokenApi;
 import com.flyway.common.model.CommonResponse;
 import com.flyway.exception.FlywayApiException;
 import com.flyway.rate.OpenRateApi;
+import com.flyway.rate.model.CustomRateConfig;
 import com.flyway.rate.model.CustomRateItem;
 import com.flyway.rate.model.CustomRateRequest;
-import com.flyway.rate.model.OpenRateRespose;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class RateApiExample {
 
-
-
     public static void main(String[] args) {
 
-         modify();
-        //queryRateList();
+        //modify();
+        queryRateList();
     }
-
-
 
     public static void modify() {
         try {
@@ -76,14 +72,13 @@ public class RateApiExample {
             request.setRequestNo("14124312");
 
             request.setOpenID("");
-            CommonResponse res = openRateApi.modify(request);
+            CommonResponse<Void> res = openRateApi.modify(request);
             System.out.println("返回结果: "+JSON.toJSONString(res));
+            System.out.println("返回结果: "+JSON.toJSONString(res.getData()));
 
         } catch ( FlywayApiException e) {
             System.out.println(e.getMessage());
         }
-
-
     }
 
     public static void queryRateList() {
@@ -116,16 +111,13 @@ public class RateApiExample {
             request.setToken(token);
             request.setRequestNo("14124312");
             request.setOpenID("");
-            CommonResponse<OpenRateRespose> res = openRateApi.customRateList(request);
+            CommonResponse<CustomRateConfig> res = openRateApi.customRateList(request);
             System.out.println("返回结果: "+JSON.toJSONString(res));
+            System.out.println("返回结果: "+JSON.toJSONString(res.getData()));
 
         } catch ( FlywayApiException e) {
             System.out.println(e.getMessage());
         }
 
-
     }
-
-
-
 }
