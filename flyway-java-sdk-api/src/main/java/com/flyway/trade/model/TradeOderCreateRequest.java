@@ -24,6 +24,12 @@ public class TradeOderCreateRequest extends CommonRequest {
     private String openID;
 
     /**
+     * 交易单id
+     */
+    @JsonProperty("tradeOrderId")
+    private String tradeOrderId;
+
+    /**
      * 金额
      */
     @JsonProperty("amount")
@@ -96,12 +102,6 @@ public class TradeOderCreateRequest extends CommonRequest {
     private List<Appendix> goodsAppendixs;
 
     /**
-     * 主要交易类型
-     */
-    @JsonProperty("mainTradeType")
-    private String mainTradeType;
-
-    /**
      * 订单附件
      */
     @JsonProperty("orderAppendixs")
@@ -128,8 +128,8 @@ public class TradeOderCreateRequest extends CommonRequest {
     /**
      * 物流信息
      */
-    @JsonProperty("shippings")
-    private List<Shipping> shippings;
+    @JsonProperty("shipping")
+    private Shipping shipping;
 
     /**
      * 类型
@@ -151,6 +151,14 @@ public class TradeOderCreateRequest extends CommonRequest {
 
     public void setOpenID(String openID) {
         this.openID = openID;
+    }
+
+    public String getTradeOrderId() {
+        return tradeOrderId;
+    }
+
+    public void setTradeOrderId(String tradeOrderId) {
+        this.tradeOrderId = tradeOrderId;
     }
 
     public BigDecimal getAmount() {
@@ -249,14 +257,6 @@ public class TradeOderCreateRequest extends CommonRequest {
         this.goodsAppendixs = goodsAppendixs;
     }
 
-    public String getMainTradeType() {
-        return mainTradeType;
-    }
-
-    public void setMainTradeType(String mainTradeType) {
-        this.mainTradeType = mainTradeType;
-    }
-
     public List<Appendix> getOrderAppendixs() {
         return orderAppendixs;
     }
@@ -289,12 +289,12 @@ public class TradeOderCreateRequest extends CommonRequest {
         this.quantity = quantity;
     }
 
-    public List<Shipping> getShippings() {
-        return shippings;
+    public Shipping getShipping() {
+        return shipping;
     }
 
-    public void setShippings(List<Shipping> shippings) {
-        this.shippings = shippings;
+    public void setShipping(Shipping shipping) {
+        this.shipping = shipping;
     }
 
     public String getType() {

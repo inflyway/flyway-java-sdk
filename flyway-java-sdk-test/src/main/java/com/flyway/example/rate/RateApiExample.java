@@ -16,7 +16,6 @@ import java.util.List;
 public class RateApiExample {
 
     public static void main(String[] args) {
-
         //modify();
         queryRateList();
     }

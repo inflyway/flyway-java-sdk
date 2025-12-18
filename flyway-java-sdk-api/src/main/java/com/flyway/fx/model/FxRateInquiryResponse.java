@@ -26,6 +26,12 @@ public class FxRateInquiryResponse {
     private String requestNo;
 
     /**
+     * 预计可汇兑的金额
+     */
+    @JsonProperty("buyAmount")
+    private String buyAmount;
+
+    /**
      * 请求流水号
      */
     @JsonProperty("validTime")
@@ -66,12 +72,21 @@ public class FxRateInquiryResponse {
         this.validTime = validTime;
     }
 
+    public String getBuyAmount() {
+        return this.buyAmount;
+    }
+
+    public void setBuyAmount(String buyAmount) {
+        this.buyAmount = buyAmount;
+    }
+
     @Override
     public String toString() {
         return "FxRateInquiryResponse{" +
                 "rate='" + rate + '\'' +
                 ", inquiryNo='" + inquiryNo + '\'' +
                 ", requestNo='" + requestNo + '\'' +
+                ", buyAmount='" + buyAmount + '\'' +
                 ", validTime=" + validTime +
                 '}';
     }

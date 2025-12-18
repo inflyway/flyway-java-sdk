@@ -46,8 +46,8 @@ public class TradeOrderQueryInfo {
     @JsonProperty("orderAppendixs")
     private List<Appendix> orderAppendixs;
 
-    @JsonProperty("shippings")
-    private List<Shipping> shippings;
+    @JsonProperty("shipping")
+    private Shipping shipping;
 
     @JsonProperty("contractAppendixs")
     private List<Appendix> contractAppendixs;
@@ -183,12 +183,12 @@ public class TradeOrderQueryInfo {
         this.orderAppendixs = orderAppendixs;
     }
 
-    public List<Shipping> getShippings() {
-        return shippings;
+    public Shipping getShipping() {
+        return shipping;
     }
 
-    public void setShippings(List<Shipping> shippings) {
-        this.shippings = shippings;
+    public void setShipping(Shipping shipping) {
+        this.shipping = shipping;
     }
 
     public List<Appendix> getContractAppendixs() {

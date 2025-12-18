@@ -54,6 +54,7 @@ public class TradeApiExample {
             String clientSecret = "";
             String aesKey = ""; // 16位AES密钥
             String rsaPrivateKey = "";
+
             // 2： 设置配置
             FlywayConfig flywayConfig = new FlywayConfig();
             flywayConfig.setServerUrl("https://open-test.inflyway.com");//测试环境地址
@@ -117,7 +118,6 @@ public class TradeApiExample {
             tradeOderCreateRequest.setOtherAppendixs(otherAppendixs);
 
             // 物流信息
-            List<TradeOderCreateRequest.Shipping> shippings = new ArrayList<>();
             TradeOderCreateRequest.Shipping shipping = new TradeOderCreateRequest.Shipping();
             shipping.setAddressLine1("详细地址1");
             shipping.setAddressLine2("详细地址2");
@@ -153,8 +153,7 @@ public class TradeApiExample {
             shippingOtherAppendixs.add(shippingOtherAppendix);
             shipping.setOtherAppendixs(shippingOtherAppendixs);
 
-            shippings.add(shipping);
-            tradeOderCreateRequest.setShippings(shippings);
+            tradeOderCreateRequest.setShipping(shipping);
 
             // 其他基本信息
             tradeOderCreateRequest.setCurrency("USD");
@@ -163,13 +162,12 @@ public class TradeApiExample {
             tradeOderCreateRequest.setDeliveryTime("1764839724000");
             tradeOderCreateRequest.setEstimatedDeliverTime("");
             tradeOderCreateRequest.setGoodName("交易名称");
-            tradeOderCreateRequest.setMainTradeType("GOODS_TRADE");
             tradeOderCreateRequest.setOrderTime(1762011510673L);
             tradeOderCreateRequest.setQuantity(1);
             tradeOderCreateRequest.setType("1");
-            tradeOderCreateRequest.setOpenID("223344556677");
+            tradeOderCreateRequest.setOpenID("");
             tradeOderCreateRequest.setToken(token);
-            tradeOderCreateRequest.setRequestNo("20251127000001");
+            tradeOderCreateRequest.setRequestNo("20251218000002");
             CommonResponse<TradeOderCreateInfo> tradeOrderId = openTradeApi.createTrade(tradeOderCreateRequest);
             System.out.println(JSON.toJSONString(tradeOrderId));
 
@@ -190,6 +188,7 @@ public class TradeApiExample {
             String clientSecret = "";
             String aesKey = ""; // 16位AES密钥
             String rsaPrivateKey = "";
+
             // 2： 设置配置
             FlywayConfig flywayConfig = new FlywayConfig();
             flywayConfig.setServerUrl("https://open-test.inflyway.com");//测试环境地址
@@ -206,8 +205,9 @@ public class TradeApiExample {
             // 4： 声明api对象并调用api
             OpenTradeApi openTradeApi = new OpenTradeApi(flywayConfig);
             TradeOrderQueryRequest tradeOrderQueryRequest = new TradeOrderQueryRequest();
-            tradeOrderQueryRequest.setTradeOrderId("2000490084782923777");
-            tradeOrderQueryRequest.setOpenID("223344556677");
+//            tradeOrderQueryRequest.setTradeOrderId("2001577290690105345");
+            tradeOrderQueryRequest.setRequestNo("20251218000002");
+            tradeOrderQueryRequest.setOpenID("");
             tradeOrderQueryRequest.setToken(token);
             CommonResponse<TradeOrderQueryInfo> tradeOrderQueryResponse = openTradeApi.queryTrade(tradeOrderQueryRequest);
             System.out.println(JSON.toJSONString(tradeOrderQueryResponse));
@@ -229,6 +229,7 @@ public class TradeApiExample {
             String clientSecret = "";
             String aesKey = ""; // 16位AES密钥
             String rsaPrivateKey = "";
+
             // 2： 设置配置
             FlywayConfig flywayConfig = new FlywayConfig();
             flywayConfig.setServerUrl("https://open-test.inflyway.com");//测试环境地址
@@ -245,19 +246,19 @@ public class TradeApiExample {
             // 4： 声明api对象并调用api
             OpenTradeApi openTradeApi = new OpenTradeApi(flywayConfig);
             TradeOrderBindRequest tradeOrderBindRequest = new TradeOrderBindRequest();
-            tradeOrderBindRequest.setFlowId("FTT20251212191241982000720");
+            tradeOrderBindRequest.setFlowId("FTT20251212162203397000713");
             List<TradeOrderBindRequest.TradeOrder> tradeOrderList = new ArrayList<>();
             TradeOrderBindRequest.TradeOrder tradeOrder = new TradeOrderBindRequest.TradeOrder();
-            tradeOrder.setTradeOrderId("1999415577426599937");
-            tradeOrder.setMatchAmount(new BigDecimal("1000"));
+            tradeOrder.setTradeOrderId("2001582961796096002");
+            tradeOrder.setMatchAmount(new BigDecimal("200"));
             tradeOrderList.add(tradeOrder);
-            TradeOrderBindRequest.TradeOrder tradeOrder2 = new TradeOrderBindRequest.TradeOrder();
-            tradeOrder2.setTradeOrderId("1999435790570299394");
-            tradeOrder2.setMatchAmount(new BigDecimal("300"));
-            tradeOrderList.add(tradeOrder2);
+//            TradeOrderBindRequest.TradeOrder tradeOrder2 = new TradeOrderBindRequest.TradeOrder();
+//            tradeOrder2.setTradeOrderId("1999435790570299394");
+//            tradeOrder2.setMatchAmount(new BigDecimal("300"));
+//            tradeOrderList.add(tradeOrder2);
             tradeOrderBindRequest.setTradeOrderList(tradeOrderList);
-            tradeOrderBindRequest.setOpenID("223344556677");
-            tradeOrderBindRequest.setRequestNo("202512150001");
+            tradeOrderBindRequest.setOpenID("");
+            tradeOrderBindRequest.setRequestNo("202512180012");
             tradeOrderBindRequest.setCallbackUrl("https://www.baidu.com");
             tradeOrderBindRequest.setToken(token);
             CommonResponse<TradeOderBindInfo> tradeOderBindResponse = openTradeApi.bindOpenTrade(tradeOrderBindRequest);
@@ -280,6 +281,7 @@ public class TradeApiExample {
             String clientSecret = "";
             String aesKey = ""; // 16位AES密钥
             String rsaPrivateKey = "";
+
             // 2： 设置配置
             FlywayConfig flywayConfig = new FlywayConfig();
             flywayConfig.setServerUrl("https://open-test.inflyway.com");//测试环境地址
@@ -296,8 +298,8 @@ public class TradeApiExample {
             // 4： 声明api对象并调用api
             OpenTradeApi openTradeApi = new OpenTradeApi(flywayConfig);
             TradeOrderQueryAuditRequest queryAuditRequest = new TradeOrderQueryAuditRequest();
-            queryAuditRequest.setAuditId("RZSH20251215103422160008677");
-            queryAuditRequest.setOpenID("223344556677");
+            queryAuditRequest.setRequestNo("202512180012");
+            queryAuditRequest.setOpenID("");
             queryAuditRequest.setToken(token);
             CommonResponse<TradeOrderQueryAuditInfo> tradeOrderQueryAuditResponse = openTradeApi.queryAuditStatus(queryAuditRequest);
             System.out.println(JSON.toJSONString(tradeOrderQueryAuditResponse));

@@ -10,15 +10,15 @@ public class TradeOderBindInfo {
     /**
      * 入账审核id
      */
-    @JsonProperty("auditId")
-    private String auditId;
+    @JsonProperty("requestNo")
+    private String requestNo;
 
-    public String getAuditId() {
-        return auditId;
+    public String getRequestNo() {
+        return requestNo;
     }
 
-    public void setAuditId(String auditId) {
-        this.auditId = auditId;
+    public void setRequestNo(String requestNo) {
+        this.requestNo = requestNo;
     }
 
 }

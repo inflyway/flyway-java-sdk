@@ -12,6 +12,13 @@ public class TradeOrderQueryRequest extends CommonRequest {
     private String tradeOrderId;
 
     /**
+     * 请求唯一流水号
+     */
+    @JsonProperty("requestNo")
+    private String requestNo;
+
+
+    /**
      * 开放平台账户ID
      */
     @JsonProperty("openID")
@@ -19,6 +26,15 @@ public class TradeOrderQueryRequest extends CommonRequest {
 
     public TradeOrderQueryRequest() {
     }
+
+    public String getRequestNo() {
+        return requestNo;
+    }
+
+    public void setRequestNo(String requestNo) {
+        this.requestNo = requestNo;
+    }
+
 
     public String getTradeOrderId() {
         return tradeOrderId;

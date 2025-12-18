@@ -14,8 +14,8 @@ public class TradeOrderQueryAuditRequest extends CommonRequest {
     /**
      * 审核ID
      */
-    @JsonProperty("auditId")
-    private String auditId;
+    @JsonProperty("requestNo")
+    private String requestNo;
 
     public String getOpenID() {
         return openID;
@@ -25,11 +25,11 @@ public class TradeOrderQueryAuditRequest extends CommonRequest {
         this.openID = openID;
     }
 
-    public String getAuditId() {
-        return auditId;
+    public String getRequestNo() {
+        return requestNo;
     }
 
-    public void setAuditId(String auditId) {
-        this.auditId = auditId;
+    public void setRequestNo(String requestNo) {
+        this.requestNo = requestNo;
     }
 }

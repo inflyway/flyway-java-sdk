@@ -46,7 +46,6 @@ public class OpenFxApiExample {
         flywayConfig.setAesKey(aesKey);
         flywayConfig.setRsaPrivateKey(rsaPrivateKey);
         flywayConfig.setDebug(true);
-
         return flywayConfig;
     }
 
@@ -62,11 +61,11 @@ public class OpenFxApiExample {
             System.out.println("\n=== 分隔线 ===\n");
 
             // 【即时换汇申请】示例 注意：由于询汇编号有时效性，所以该示例先模拟询汇，拿到询汇编号后再执行换汇申请
-//             fxRateLockExample();
+             fxRateLockExample();
             System.out.println("\n=== 分隔线 ===\n");
 
             //【即时换汇申请详情查询】 示例
-            queryExchangeDetailExample();
+//            queryExchangeDetailExample();
 
             System.out.println("=== FX API示例执行完成 ===");
         } catch (Exception e) {
@@ -92,8 +91,8 @@ public class OpenFxApiExample {
             OpenFxApi fxApi = new OpenFxApi(flywayConfig);
             
             FxRateInquiryRequest request = new FxRateInquiryRequest();
-            request.setOpenID("7ca891ac426a4debad428929fc87c42c");
-            request.setSellCurrency("VND");
+            request.setOpenID("");
+            request.setSellCurrency("USD");
             request.setBuyCurrency("CNH");
             request.setAmount(new BigDecimal("1000.01"));
             request.setRequestNo("FX_INQUIRY_" + UUID.randomUUID().toString());
@@ -237,7 +236,7 @@ public class OpenFxApiExample {
             request.setOpenID(openId);
             request.setSellCurrency("USD");
             request.setBuyCurrency("CNH");
-            request.setAmount(new BigDecimal("4000000.01"));
+            request.setAmount(new BigDecimal("40.01"));
             request.setRequestNo("FX_INQUIRY_"+  UUID.randomUUID().toString());
             request.setToken(token);
             CommonResponse<FxRateInquiryResponse> response = fxApi.inquiryRate(request);
@@ -246,19 +245,37 @@ public class OpenFxApiExample {
             System.out.println("汇率查询返回结果: " + response);
             System.out.println("response.getData()类型: " + response.getData().getClass());
 
-            FxRateInquiryResponse data = response.getData();
-            String inquiryNo = data.getInquiryNo();
+            FxRateInquiryResponse data1 = response.getData();
+            String inquiryNo = data1.getInquiryNo();
             System.out.println("获取到的询汇编号: " + inquiryNo);
 
             FxRateLockRequest lockrequest = new FxRateLockRequest();
             lockrequest.setRequestNo("FX_LOCK_" + UUID.randomUUID().toString());
             lockrequest.setOpenID(openId);
             lockrequest.setInquiryNo(inquiryNo);
-            lockrequest.setSellAmount("4000000.01");
+            lockrequest.setSellAmount("40.01");
             lockrequest.setCallback("https://www.baodu.com");
             lockrequest.setToken(token);
 
             CommonResponse<FxRateLockResponse> lockresponse = fxApi.submitRate(lockrequest);
+
+            if (lockresponse != null && lockresponse.getData() != null) {
+                FxRateLockResponse data = lockresponse.getData();
+                System.out.println("查询成功!");
+                System.out.println("- 订单ID: " + data.getId());
+                System.out.println("- 流水号: " + data.getSerialNumber());
+                System.out.println("- 卖出币种: " + data.getSellCurrency());
+                System.out.println("- 买入币种: " + data.getBuyCurrency());
+                System.out.println("- 卖出金额: " + data.getSellAmount());
+                System.out.println("- 买入金额: " + data.getBuyAmount());
+                System.out.println("- 订单状态: " + data.getStatus());
+                System.out.println("- 汇率: " + data.getRate());
+                System.out.println("- 交易时间: " + data.getExchangeTime());
+                System.out.println("- 计划结算日期: " + data.getPlanSettleDate());
+                if (data.getReason() != null) {
+                    System.out.println("- 失败原因: " + data.getReason());
+                }
+            }
 
             // 5： 输出返回结果
             System.out.println("锁汇返回结果: " + lockresponse);

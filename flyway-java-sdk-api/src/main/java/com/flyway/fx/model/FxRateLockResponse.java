@@ -71,7 +71,7 @@ public class FxRateLockResponse {
      * 计划结算日期
      */
     @JsonProperty("planSettleDate")
-    private Long planSettleDate;
+    private String planSettleDate;
 
     public FxRateLockResponse() {
     }
@@ -156,11 +156,11 @@ public class FxRateLockResponse {
         this.reason = reason;
     }
 
-    public Long getPlanSettleDate() {
+    public String getPlanSettleDate() {
         return planSettleDate;
     }
 
-    public void setPlanSettleDate(Long planSettleDate) {
+    public void setPlanSettleDate(String planSettleDate) {
         this.planSettleDate = planSettleDate;
     }
 

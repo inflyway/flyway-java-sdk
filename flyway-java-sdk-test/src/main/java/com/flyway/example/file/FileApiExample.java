@@ -47,12 +47,13 @@ public class FileApiExample {
             OpenFileApi openFileApi = new OpenFileApi(flywayConfig);
             FileUploadRequest request = new FileUploadRequest();
             request.setToken(token);
-            request.setFile(new File("\\Desktop\\123.jpg"));
+            request.setFile(new File("Desktop\\123.jpg"));
             request.setRequestNo("");
             request.setOpenID("");
             request.setBiz("KYC");
             CommonResponse<FileUrlInfo> res = openFileApi.uploadFile(request);
             System.out.println("返回结果: "+JSON.toJSONString(res.getData()));
+            System.out.println("返回结果url: "+JSON.toJSONString(res.getData().getUrl()));
 
         } catch ( FlywayApiException e) {
             System.out.println(e.getMessage());
