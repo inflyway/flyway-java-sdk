@@ -41,6 +41,12 @@ public class TradeOderCreateRequest extends CommonRequest {
     @JsonProperty("buyerName")
     private String buyerName;
 
+    @JsonProperty("isDelivery")
+    private Boolean isDelivery;
+
+    @JsonProperty("enterpriseNumber")
+    private String enterpriseNumber;
+
     /**
      * 进口清关文件
      */
@@ -136,6 +142,20 @@ public class TradeOderCreateRequest extends CommonRequest {
      */
     @JsonProperty("type")
     private String type;
+
+    public Boolean getIsDelivery() {return isDelivery;}
+
+    public void setIsDelivery(Boolean isDelivery) {
+        this.isDelivery = isDelivery;
+    }
+
+    public String getEnterpriseNumber() {
+        return enterpriseNumber;
+    }
+
+    public void setEnterpriseNumber(String enterpriseNumber) {
+        this.enterpriseNumber = enterpriseNumber;
+    }
 
     public String getRequestNo() {
         return requestNo;

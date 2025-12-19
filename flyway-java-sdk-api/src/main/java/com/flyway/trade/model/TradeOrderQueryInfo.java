@@ -65,10 +65,16 @@ public class TradeOrderQueryInfo {
     private String deliveryMethod;
 
     @JsonProperty("estimatedDeliverTime")
-    private String estimatedDeliverTime;
+    private Long estimatedDeliverTime;
 
     @JsonProperty("deliveryTime")
     private Long deliveryTime;
+
+    @JsonProperty("isDelivery")
+    private Boolean isDelivery;
+
+    @JsonProperty("enterpriseNumber")
+    private String enterpriseNumber;
 
     @JsonProperty("mainTradeType")
     private String mainTradeType;
@@ -231,11 +237,24 @@ public class TradeOrderQueryInfo {
         this.deliveryMethod = deliveryMethod;
     }
 
-    public String getEstimatedDeliverTime() {
+    public Boolean getIsDelivery() {return isDelivery;}
+
+    public void setIsDelivery(Boolean isDelivery) {
+        this.isDelivery = isDelivery;
+    }
+
+    public String getEnterpriseNumber() {
+        return enterpriseNumber;
+    }
+
+    public void setEnterpriseNumber(String enterpriseNumber) {
+        this.enterpriseNumber = enterpriseNumber;
+    }
+    public Long getEstimatedDeliverTime() {
         return estimatedDeliverTime;
     }
 
-    public void setEstimatedDeliverTime(String estimatedDeliverTime) {
+    public void setEstimatedDeliverTime(Long estimatedDeliverTime) {
         this.estimatedDeliverTime = estimatedDeliverTime;
     }
 

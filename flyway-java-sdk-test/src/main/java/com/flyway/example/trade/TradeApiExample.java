@@ -159,15 +159,17 @@ public class TradeApiExample {
             tradeOderCreateRequest.setCurrency("USD");
             tradeOderCreateRequest.setCustomerWebsite("https://www.baidu.com/");
             tradeOderCreateRequest.setDeliveryMethod("EXW");
-            tradeOderCreateRequest.setDeliveryTime("1764839724000");
-            tradeOderCreateRequest.setEstimatedDeliverTime("");
+            tradeOderCreateRequest.setIsDelivery(false);
+//            tradeOderCreateRequest.setDeliveryTime("1764839724000");
+            tradeOderCreateRequest.setEstimatedDeliverTime("1764839724000");
             tradeOderCreateRequest.setGoodName("交易名称");
             tradeOderCreateRequest.setOrderTime(1762011510673L);
             tradeOderCreateRequest.setQuantity(1);
-            tradeOderCreateRequest.setType("1");
+            tradeOderCreateRequest.setType("2");
+            tradeOderCreateRequest.setEnterpriseNumber("EnterpriseNumber");
             tradeOderCreateRequest.setOpenID("");
             tradeOderCreateRequest.setToken(token);
-            tradeOderCreateRequest.setRequestNo("20251218000002");
+            tradeOderCreateRequest.setRequestNo("20251218000004");
             CommonResponse<TradeOderCreateInfo> tradeOrderId = openTradeApi.createTrade(tradeOderCreateRequest);
             System.out.println(JSON.toJSONString(tradeOrderId));
 
