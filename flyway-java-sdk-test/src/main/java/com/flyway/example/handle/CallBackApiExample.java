@@ -2,7 +2,6 @@ package com.flyway.example.handle;
 
 import com.flyway.common.FlywayConfig;
 import com.flyway.handle.OpenCallBackHandler;
-import com.flyway.util.OpenAesUtil;
 
 import javax.servlet.AsyncContext;
 import javax.servlet.DispatcherType;
@@ -12,14 +11,17 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.WriteListener;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpUpgradeHandler;
 import javax.servlet.http.Part;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.util.Collection;
@@ -40,23 +42,24 @@ public class CallBackApiExample {
             // 初始化配置
             FlywayConfig config = new FlywayConfig();
             config.setAesKey(""); // 16位AES密钥
-            config.setFlywayRsaPublicKey("");
+            config.setFlywayRsaPublicKey(""); // 飞来汇RSA公钥
+            config.setRsaPrivateKey(""); // RSA私钥
 
-            // 创建 OpenCallBackHandler 实例
+            // 模拟接受到回调通知请求
             OpenCallBackHandler callBackHandler = new OpenCallBackHandler(config);
-
-            // 设置请求头参数（手动填入）
             String timestamp = ""; // 手动设置时间戳
             String requestId = "";   // 手动设置请求ID
             String signature = "";  //手动设置签名
             String originalData = ""; //手动设置请求报文
-
-            // 创建模拟的 HttpServletRequest
             HttpServletRequest mockRequest = createMockRequest(config, timestamp, requestId, signature, originalData);
-
-            // 调用 handleCallbackRequest 方法处理回调
+            // 对回调通知进行验签,解密
             String result = callBackHandler.handleCallbackRequest(mockRequest);
 
+            // 创建模拟的 HttpServletResponse
+            HttpServletResponse mockResponse = createMockResponse();
+            // 调用 handleCallbackResponse 方法处理响应
+            callBackHandler.handleCallbackResponse(mockResponse, result);
+            
             // 输出结果
             System.out.println("回调处理结果: " + result);
         } catch (Exception e) {
@@ -75,15 +78,6 @@ public class CallBackApiExample {
      * @return 模拟的 HttpServletRequest
      */
     private static HttpServletRequest createMockRequest(FlywayConfig config, String timestamp, String requestId, String signature, String originalData) {
-        String body;
-        try {
-            body = OpenAesUtil.encryptAndBase64Encode(originalData, config.getAesKey());
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        // 创建一个简单的 HttpServletRequest 实现
-        String finalBody = body;
         return new HttpServletRequest() {
             private final Map<String, String> headers = new HashMap<>();
 
@@ -100,13 +94,13 @@ public class CallBackApiExample {
 
             @Override
             public BufferedReader getReader() throws IOException {
-                return new BufferedReader(new StringReader(finalBody));
+                return new BufferedReader(new StringReader(originalData));
             }
 
             @Override
             public ServletInputStream getInputStream() throws IOException {
                 return new ServletInputStream() {
-                    private InputStream inputStream = new ByteArrayInputStream(finalBody.getBytes());
+                    private InputStream inputStream = new ByteArrayInputStream(originalData.getBytes());
 
                     @Override
                     public boolean isFinished() {
@@ -363,6 +357,116 @@ public class CallBackApiExample {
             public DispatcherType getDispatcherType() {
                 return null;
             }
+        };
+    }
+    
+    /**
+     * 创建模拟的 HttpServletResponse
+     * 
+     * @return 模拟的 HttpServletResponse
+     */
+    private static HttpServletResponse createMockResponse() {
+        return new HttpServletResponse() {
+            private int status = 200;
+            private String contentType;
+            private final Map<String, String> headers = new HashMap<>();
+            private ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            private PrintWriter writer;
+            private boolean committed = false;
+
+            @Override
+            public void setStatus(int sc) {
+                this.status = sc;
+            }
+
+            @Override
+            public void setContentType(String type) {
+                this.contentType = type;
+            }
+
+            @Override
+            public PrintWriter getWriter() throws IOException {
+                if (writer == null) {
+                    writer = new PrintWriter(outputStream);
+                }
+                return writer;
+            }
+
+            @Override
+            public javax.servlet.ServletOutputStream getOutputStream() throws IOException {
+                return new javax.servlet.ServletOutputStream() {
+                    @Override
+                    public boolean isReady() {
+                        return true;
+                    }
+
+                    @Override
+                    public void setWriteListener(WriteListener writeListener) {
+                        // Not implemented for this example
+                    }
+
+                    @Override
+                    public void write(int b) throws IOException {
+                        outputStream.write(b);
+                    }
+                };
+            }
+
+            @Override
+            public void setHeader(String name, String value) {
+                headers.put(name, value);
+            }
+
+            @Override
+            public String getHeader(String name) {
+                return headers.get(name);
+            }
+
+            @Override
+            public int getStatus() {
+                return status;
+            }
+
+            @Override
+            public String getContentType() {
+                return contentType;
+            }
+
+            // 实现其他必需方法...
+            @Override public void addCookie(javax.servlet.http.Cookie cookie) { }
+            @Override public boolean containsHeader(String name) { return false; }
+            @Override public String encodeURL(String url) { return null; }
+            @Override public String encodeRedirectURL(String url) { return null; }
+            @Override public String encodeUrl(String url) { return null; }
+            @Override public String encodeRedirectUrl(String url) { return null; }
+            @Override public void sendError(int sc, String msg) throws IOException { }
+            @Override public void sendError(int sc) throws IOException { }
+            @Override public void sendRedirect(String location) throws IOException { }
+            @Override public void setDateHeader(String name, long date) { }
+            @Override public void addDateHeader(String name, long date) { }
+            @Override public void addHeader(String name, String value) { }
+            @Override public void setIntHeader(String name, int value) { }
+            @Override public void addIntHeader(String name, int value) { }
+            @Override public void setStatus(int sc, String sm) { }
+            @Override public Collection<String> getHeaders(String name) { return Collections.emptyList(); }
+            @Override public Collection<String> getHeaderNames() { return Collections.emptyList(); }
+            @Override public String getCharacterEncoding() { return null; }
+            @Override public void setCharacterEncoding(String charset) { }
+            @Override public void setContentLength(int len) { }
+            @Override public void setContentLengthLong(long len) { }
+            @Override public void setBufferSize(int size) { }
+            @Override public int getBufferSize() { return 0; }
+            @Override public void flushBuffer() throws IOException { 
+                if (writer != null) {
+                    writer.flush();
+                }
+                committed = true;
+            }
+            @Override public void resetBuffer() { }
+            @Override public boolean isCommitted() { return committed; }
+            @Override public void reset() { }
+            @Override public void setLocale(Locale loc) { }
+            @Override public Locale getLocale() { return null; }
         };
     }
 }

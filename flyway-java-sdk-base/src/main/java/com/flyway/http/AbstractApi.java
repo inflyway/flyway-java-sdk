@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * Inflyway SDK客户端
@@ -55,7 +57,18 @@ public abstract class AbstractApi implements AutoCloseable {
      * @return 解密后的JSON报文，处理失败返回null
      */
     public String handleCallbackRequest(HttpServletRequest request) {
-        return httpClient.handleCallback(request);
+        return httpClient.handleCallbackRequest(request);
+    }
+
+    /**
+     * 处理回调响应，生成加密的响应消息并写入HttpServletResponse
+     *
+     * @param response HttpServletResponse对象
+     * @param responseBody 响应体内容
+     * @throws IOException IO异常
+     */
+    public void handleCallbackResponse(HttpServletResponse response, Object responseBody) throws IOException {
+        httpClient.handleCallbackResponse(response, responseBody);
     }
 
     /**

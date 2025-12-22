@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.flyway.common.FlywayConfig;
+import com.flyway.common.model.CipherRequest;
 import com.flyway.common.model.CipherResponse;
 import com.flyway.common.model.CommonResponse;
 import com.flyway.common.model.FileUploadRequest;
@@ -32,9 +33,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.HashMap;
@@ -72,7 +75,7 @@ public class HttpClientUtil {
     }
 
     /**
-     * 发送POST JSON请求（带加密和签名）
+     * 发送POST JSON请求（带加密和签名）支持TypeReference
      */
     public <T> T postJsonWithEncryptionAndSignature(String url, Object requestBody, TypeReference<T> responseType, String token, String aesKey, String rsaPrivateKey) throws FlywayApiException {
         HttpPost httpPost = null;
@@ -151,7 +154,7 @@ public class HttpClientUtil {
     }
 
     /**
-     * 发送GET请求（带加密和签名）
+     * 发送GET请求（带加密和签名）支持TypeReference
      */
     public <T> T getJsonWithEncryptionAndSignature(String url, Object requestParams, TypeReference<T> responseType, String token, String aesKey, String rsaPrivateKey) throws FlywayApiException {
         HttpGet httpGet = null;
@@ -242,7 +245,7 @@ public class HttpClientUtil {
     }
 
     /**
-     * 发送POST JSON请求（带加密和签名）
+     * 发送POST JSON请求（带加密和签名）支持TypeReference
      */
     public <T> T postFormDataWithEncryptionAndSignature(String url, FileUploadRequest requestBody, TypeReference<T> responseType, String token, String aesKey, String rsaPrivateKey) throws FlywayApiException {
         HttpPost httpPost = null;
@@ -406,7 +409,7 @@ public class HttpClientUtil {
     }
 
     /**
-     * 处理HTTP响应
+     * 处理HTTP响应 支持TypeReference
      */
     private <T> T handleResponseWithTypeRef(HttpResponse response, TypeReference<T> responseType) throws FlywayApiException, IOException {
         int statusCode = response.getStatusLine().getStatusCode();
@@ -527,7 +530,7 @@ public class HttpClientUtil {
      * @param request HttpServletRequest对象
      * @return 解密后的JSON报文，处理失败返回null
      */
-    public String handleCallback(HttpServletRequest request) {
+    public String handleCallbackRequest(HttpServletRequest request) {
         try {
             // 从Header获取必要参数
             String timestamp = request.getHeader("Tuotuo-Timestamp");
@@ -542,29 +545,15 @@ public class HttpClientUtil {
             // 验签
             String verifyData = requestId + "&" + timestamp;
             String publicKey = config.getFlywayRsaPublicKey();
-            if (publicKey == null || publicKey.isEmpty()) {
-                logger.warn("验签公钥未配置");
-                return null;
-            }
+
+            OpenRsaUtil.rsaVerify(verifyData, publicKey, signature);
 
             try {
-                OpenRsaUtil.rsaVerify(verifyData, publicKey, signature);
-                logger.debug("回调请求验签成功");
-            } catch (Exception e) {
-                logger.warn("回调请求验签失败: {}", e.getMessage());
-                return null;
-            }
-
-            // 读取请求体
-            String body = readRequestBody(request);
-            if (body == null || body.isEmpty()) {
-                logger.warn("回调请求体为空");
-                return null;
-            }
-
-            // 解析并解密数据
-            try {
-                String decryptedData = OpenAesUtil.decryptAfterBase64Decode(body, config.getAesKey());
+                // 读取请求体
+                String body = readRequestBody(request);
+                CipherRequest cipherRequest = objectMapper.readValue(body, CipherRequest.class);
+                // 解析并解密数据
+                String decryptedData = OpenAesUtil.decryptAfterBase64Decode(cipherRequest.getCiphertext(), config.getAesKey());
                 logger.debug("回调请求解密成功");
                 return decryptedData;
             } catch (Exception e) {
@@ -575,6 +564,53 @@ public class HttpClientUtil {
             logger.error("处理回调请求时发生错误", e);
             return null;
         }
+    }
+
+    /**
+     * 处理回调响应，生成加密的响应消息并写入HttpServletResponse
+     *
+     * @param response HttpServletResponse对象
+     * @param responseBody 响应体内容
+     * @throws IOException IO异常
+     */
+    public void handleCallbackResponse(HttpServletResponse response, Object responseBody) throws IOException {
+        // 设置请求ID
+        String requestId = UUID.randomUUID().toString().replace("-", "");
+        response.setHeader("Request-ID", requestId);
+
+        // 设置时间戳
+        long timestamp = System.currentTimeMillis();
+        response.setHeader("Tuotuo-Timestamp", String.valueOf(timestamp));
+
+        // RSA签名
+        String dataToSign = requestId + "&" + timestamp;
+        String signature = OpenRsaUtil.rsaSign(dataToSign, config.getRsaPrivateKey());
+        response.setHeader("Tuotuo-Signature", signature);
+        
+        // 将响应体对象转换为JSON字符串
+        String responseBodyJson = objectMapper.writeValueAsString(responseBody);
+        
+        // AES加密响应体
+        String encryptedContent = OpenAesUtil.encryptAndBase64Encode(responseBodyJson, config.getAesKey());
+
+        Map<String, String> realBody = new HashMap<>();
+        realBody.put("ciphertext", encryptedContent);
+        String realJson = objectMapper.writeValueAsString(realBody);
+
+        if (config.isDebug()) {
+            logger.info("Original Response Body: {}", responseBodyJson);
+            logger.info("Encrypted Response Body: {}", encryptedContent);
+            logger.info("Real Response Body: {}", realJson);
+        }
+
+        // 设置响应内容类型和字符编码
+        response.setContentType("application/json;charset=UTF-8");
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+
+        // 写入响应
+        PrintWriter writer = response.getWriter();
+        writer.write(realJson);
+        writer.flush();
     }
 
     /**
