@@ -43,7 +43,7 @@ public interface FlywayUrlConstants {
 
     // ==================== 文件相关 (/business/file/**) ====================
     /** 私有文件上传 */
-    String FILE_UPLOAD_PRIVATE = "/business/file/upload";
+    String FILE_UPLOAD_PRIVATE = "/openFile/file/upload";
 
     // ==================== 支付链接相关 (/openPaylink/**) ====================
     /** 修改费率 */
