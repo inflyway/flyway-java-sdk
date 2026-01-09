@@ -9,6 +9,12 @@ import com.flyway.common.model.CommonRequest;
 public class QueryWithdrawStatusRequest extends CommonRequest {
 
     /**
+     * 提现编号
+     */
+    @JsonProperty("withdrawNo")
+    private String withdrawNo;
+
+    /**
      * 请求编号
      */
     @JsonProperty("requestNo")
@@ -19,6 +25,14 @@ public class QueryWithdrawStatusRequest extends CommonRequest {
      */
     @JsonProperty("openID")
     private String openID;
+
+    public String getWithdrawNo() {
+        return withdrawNo;
+    }
+
+    public void setWithdrawNo(String withdrawNo) {
+        this.withdrawNo = withdrawNo;
+    }
 
     public String getRequestNo() {
         return requestNo;

@@ -7,14 +7,7 @@ import com.flyway.common.model.CommonResponse;
 import com.flyway.exception.FlywayApiException;
 import com.flyway.http.AbstractApi;
 import com.flyway.http.HttpClientUtil;
-import com.flyway.trade.model.TradeOderBindInfo;
-import com.flyway.trade.model.TradeOderCreateInfo;
-import com.flyway.trade.model.TradeOderCreateRequest;
-import com.flyway.trade.model.TradeOrderBindRequest;
-import com.flyway.trade.model.TradeOrderQueryAuditInfo;
-import com.flyway.trade.model.TradeOrderQueryAuditRequest;
-import com.flyway.trade.model.TradeOrderQueryInfo;
-import com.flyway.trade.model.TradeOrderQueryRequest;
+import com.flyway.trade.model.*;
 
 public class OpenTradeApi extends AbstractApi {
 
@@ -22,7 +15,7 @@ public class OpenTradeApi extends AbstractApi {
     private String tradeQueryPath;
     private String tradeBindPath;
     private String tradeQueryAuditPath;
-
+    private String tradeBackgroundAuditStatusPath;
     /**
      * 使用指定配置构造客户端
      *
@@ -36,6 +29,7 @@ public class OpenTradeApi extends AbstractApi {
         this.tradeQueryPath = FlywayUrlConstants.TRADE_QUERY;
         this.tradeBindPath = FlywayUrlConstants.TRADE_BIND_APPLY;
         this.tradeQueryAuditPath = FlywayUrlConstants.TRADE_QUERY_AUDIT;
+        this.tradeBackgroundAuditStatusPath = FlywayUrlConstants.TRADE_BACKGROUND_AUDIT_QUERY;
     }
 
 
@@ -80,6 +74,17 @@ public class OpenTradeApi extends AbstractApi {
      */
     public CommonResponse<TradeOrderQueryAuditInfo> queryAuditStatus(TradeOrderQueryAuditRequest request) throws FlywayApiException {
         return executeWithTypeRef(request, this.tradeQueryAuditPath, new TypeReference<CommonResponse<TradeOrderQueryAuditInfo>>() {
+        });
+    }
+
+    /**
+     * 交易单贸易审核结果查询
+     * @param request 入账申请审核结果查询请求
+     * @return 入账申请审核结果查询响应
+     * @throws FlywayApiException API调用异常
+     */
+    public CommonResponse<TradeBackgroundAuditInfo> backgroundTradeAuditStatus(TradeOrderQueryAuditRequest request) throws FlywayApiException {
+        return executeWithTypeRef(request, this.tradeBackgroundAuditStatusPath, new TypeReference<CommonResponse<TradeBackgroundAuditInfo>>() {
         });
     }
 

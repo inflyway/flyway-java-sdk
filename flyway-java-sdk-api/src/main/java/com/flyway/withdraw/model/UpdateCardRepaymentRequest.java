@@ -10,10 +10,10 @@ import com.flyway.withdraw.model.ApplyWithdrawRequest.PayeeInfo;
 public class UpdateCardRepaymentRequest extends CommonRequest {
 
     /**
-     * 请求编号
+     * 提现编号
      */
-    @JsonProperty("requestNo")
-    private String requestNo;
+    @JsonProperty("withdrawNo")
+    private String withdrawNo;
 
     /**
      * OpenID
@@ -27,12 +27,12 @@ public class UpdateCardRepaymentRequest extends CommonRequest {
     @JsonProperty("payeeInfo")
     private PayeeInfo payeeInfo;
 
-    public String getRequestNo() {
-        return requestNo;
+    public String getWithdrawNo() {
+        return withdrawNo;
     }
 
-    public void setRequestNo(String requestNo) {
-        this.requestNo = requestNo;
+    public void setWithdrawNo(String withdrawNo) {
+        this.withdrawNo = withdrawNo;
     }
 
     public String getOpenID() {

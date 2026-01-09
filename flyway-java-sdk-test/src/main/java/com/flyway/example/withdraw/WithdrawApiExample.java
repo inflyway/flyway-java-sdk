@@ -5,15 +5,7 @@ import com.flyway.common.TokenApi;
 import com.flyway.common.model.CommonResponse;
 import com.flyway.exception.FlywayApiException;
 import com.flyway.withdraw.OpenWithdrawApi;
-import com.flyway.withdraw.model.ApplyWithdrawRequest;
-import com.flyway.withdraw.model.ApplyWithdrawResponseDto;
-import com.flyway.withdraw.model.QueryWithdrawStatusRequest;
-import com.flyway.withdraw.model.QueryWithdrawStatusResponseDto;
-import com.flyway.withdraw.model.TrailAmountRequest;
-import com.flyway.withdraw.model.TrailAmountResponseDto;
-import com.flyway.withdraw.model.UpdateCardRepaymentRequest;
-import com.flyway.withdraw.model.WithdrawAmountDto;
-import com.flyway.withdraw.model.WithdrawAmountRequest;
+import com.flyway.withdraw.model.*;
 
 import java.math.BigDecimal;
 
@@ -280,7 +272,7 @@ public class WithdrawApiExample {
             OpenWithdrawApi withdrawApi = new OpenWithdrawApi(flywayConfig);
 
             UpdateCardRepaymentRequest request = new UpdateCardRepaymentRequest();
-            request.setRequestNo("SCTtest000006");
+            request.setWithdrawNo("SCTtest000006");
             request.setOpenID("");
 
             // 设置收款人信息

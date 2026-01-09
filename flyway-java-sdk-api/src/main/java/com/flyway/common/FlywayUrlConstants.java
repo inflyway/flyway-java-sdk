@@ -30,6 +30,8 @@ public interface FlywayUrlConstants {
     String TRADE_BIND_APPLY = "/openTrade/bindAndApply";
     /** 查询审核状态 */
     String TRADE_QUERY_AUDIT = "/openTrade/queryFlowIDStatus";
+    /** 查询补充贸背景交易单审核状态 */
+    String TRADE_BACKGROUND_AUDIT_QUERY = "/openTrade/tradeAuditStatus";
 
     // ==================== 外汇相关 (/openFx/**) ====================
     /** 汇率查询 */
@@ -57,13 +59,13 @@ public interface FlywayUrlConstants {
 
     // ==================== 提现相关 (/collection/external/withdraw/**) ====================
     /** 查询提现金额 */
-    String WITHDRAW_AMT_QRY_PATH = "/collection/external/withdraw/queryWithdrawAmount";
+    String WITHDRAW_AMT_QRY_PATH = "/openCollection/collection/external/withdraw/queryWithdrawAmount";
     /** 试算金额 */
-    String TRAIL_AMT_QRY_PATH = "/collection/external/withdraw/trailAmount";
+    String TRAIL_AMT_QRY_PATH = "/openCollection/collection/external/withdraw/trailAmount";
     /** 申请提现 */
-    String APPLY_WITHDRAW_PATH = "/collection/external/withdraw/applyWithdraw";
+    String APPLY_WITHDRAW_PATH = "/openCollection/collection/external/withdraw/applyWithdraw";
     /** 查询提现状态 */
-    String WITHDRAW_STATUS_QRY_PATH = "/collection/external/withdraw/queryWithdrawStatus";
+    String WITHDRAW_STATUS_QRY_PATH = "/openCollection/collection/external/withdraw/queryWithdrawStatus";
     /** 更新卡片还款信息 */
-    String UPDATE_CARD_REPAYMENT_PATH = "/collection/external/withdraw/updateCardRepayment";
+    String UPDATE_CARD_REPAYMENT_PATH = "/openCollection/collection/external/withdraw/updateCardRepayment";
 }

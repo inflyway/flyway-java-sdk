@@ -7,14 +7,7 @@ import com.flyway.common.TokenApi;
 import com.flyway.common.model.CommonResponse;
 import com.flyway.exception.FlywayApiException;
 import com.flyway.trade.OpenTradeApi;
-import com.flyway.trade.model.TradeOderBindInfo;
-import com.flyway.trade.model.TradeOderCreateInfo;
-import com.flyway.trade.model.TradeOderCreateRequest;
-import com.flyway.trade.model.TradeOrderBindRequest;
-import com.flyway.trade.model.TradeOrderQueryAuditInfo;
-import com.flyway.trade.model.TradeOrderQueryAuditRequest;
-import com.flyway.trade.model.TradeOrderQueryInfo;
-import com.flyway.trade.model.TradeOrderQueryRequest;
+import com.flyway.trade.model.*;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -36,10 +29,11 @@ import java.util.List;
 public class TradeApiExample {
 
     public static void main(String[] args) {
-        createTradeExample();
+       // createTradeExample();
 //        queryDetailExample();
 //        bindAndApplyExample();
 //        queryFlowIDStatusExample();
+        queryTradeAuditStatus();
     }
 
     /**
@@ -305,6 +299,47 @@ public class TradeApiExample {
             queryAuditRequest.setToken(token);
             CommonResponse<TradeOrderQueryAuditInfo> tradeOrderQueryAuditResponse = openTradeApi.queryAuditStatus(queryAuditRequest);
             System.out.println(JSON.toJSONString(tradeOrderQueryAuditResponse));
+
+        } catch (FlywayApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 查询补充贸背景交易单审核状态
+     */
+    public static void queryTradeAuditStatus() {
+        try {
+            System.out.println(">> 直接在代码中配置认证信息（带加密和签名）：");
+
+            // 1： 飞来汇openApi配置信息
+            String clientId = "";
+            String clientSecret = "";
+            String aesKey = ""; // 16位AES密钥
+            String rsaPrivateKey = "";
+
+            // 2： 设置配置
+            FlywayConfig flywayConfig = new FlywayConfig();
+            flywayConfig.setServerUrl("https://open-test.inflyway.com");//测试环境地址
+            flywayConfig.setClientId(clientId);
+            flywayConfig.setClientSecret(clientSecret);
+            flywayConfig.setAesKey(aesKey);
+            flywayConfig.setRsaPrivateKey(rsaPrivateKey);
+            flywayConfig.setDebug(true);
+
+            // 3： 获取token（有效期2小时）
+            TokenApi tokenApi = new TokenApi(flywayConfig);
+            String token = tokenApi.getToken();
+
+            // 4： 声明api对象并调用api
+            OpenTradeApi openTradeApi = new OpenTradeApi(flywayConfig);
+            TradeOrderQueryAuditRequest queryAuditRequest = new TradeOrderQueryAuditRequest();
+            //requestNo和openID必填
+            queryAuditRequest.setRequestNo("");
+            queryAuditRequest.setOpenID("");
+            queryAuditRequest.setToken(token);
+            CommonResponse<TradeBackgroundAuditInfo> response = openTradeApi.backgroundTradeAuditStatus(queryAuditRequest);
+            System.out.println(JSON.toJSONString(response));
 
         } catch (FlywayApiException e) {
             throw new RuntimeException(e);
